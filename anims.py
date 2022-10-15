@@ -60,9 +60,11 @@ if __name__ == '__main__':
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import random
 
 x_data = []
 y_data = []
+rand_data = []
 
 fig, ax = plt.subplots()
 ax.set_xlim(0, 200)
@@ -70,6 +72,7 @@ ax.set_ylim(0, 30)
 line, = ax.plot(0, 0)
 
 def animation_frame(i):
+
 	x_data.append(i ** 2)
 	y_data.append(i)
 
@@ -81,4 +84,24 @@ animation = FuncAnimation(fig, func=animation_frame, frames=np.arange(0, 20, 0.1
 plt.show()
 
 
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
+fig = plt.figure(figsize=(16, 12))
+ax = fig.add_subplot(111)
+# You can initialize this with whatever
+im = ax.imshow(np.random.rand(6, 10), cmap='bone_r', interpolation='nearest')
+
+
+def animate(i):
+    aux = np.zeros(60)
+    aux[i] = 1
+    image_clock = np.reshape(aux, (6, 10))
+    im.set_array(image_clock)
+
+ani = animation.FuncAnimation(fig, animate, frames=60, interval=100)
+plt.show()
 # %%

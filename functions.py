@@ -123,15 +123,16 @@ def read_dataset(file, path):
     file = path + file
     time_series = [None]
     collect = False
+    points = {}
     start = False
     with open(file, newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             if len(row) != 0:
-                if row[1] == 'Name':
-                    names = [None]*(len(row)-2)
-                    for i in range(len(names)): 
-                        names[i] = row[i+2]
+                # if row[1] == 'Name':
+                #     names = [None]*(len(row)-2)
+                #     for i in range(len(names)): 
+                #         names[i] = row[i+2]
                 
                 if row[0] == '0' or collect:
                     if start: # Here we collect the data to the existing arrays or objects
@@ -146,7 +147,7 @@ def read_dataset(file, path):
                         if time: 
                             time_series.append(float(row[1]))
                     else: # Here we create the new inputs from csv file
-                        points = {}
+                        
                         collect = True
                         for i in range(int((len(row)-2)/3)):
                             if row[3*i+2] != '' and row[3*i+3] != '' and row[3*i+4] != '':
