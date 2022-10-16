@@ -122,25 +122,32 @@ def normalize(arr, t_min, t_max):
 def read_dataset(file, path):
     file = path + file
     time_series = [None]
-    collect = False
     points = {}
+    collect = False
+    names_collected = False
     start = False
     with open(file, newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             if len(row) != 0:
-                # if row[1] == 'Name':
-                #     names = [None]*(len(row)-2)
-                #     for i in range(len(names)): 
-                #         names[i] = row[i+2]
+                if row[1] == 'Name':
+                    names_collected = True
+                    names = [None]*int((len(row)-2)/3)
+                    for i in range(len(names)): 
+                        names[i] = row[3*i+2]
                 
                 if row[0] == '0' or collect:
                     if start: # Here we collect the data to the existing arrays or objects
                         for i in range(int((len(row)-2)/3)):
                             if row[3*i+2] != '' and row[3*i+3] != '' and row[3*i+4] != '':
-                                points[i]["x"].append(float(row[3*i+2]))
-                                points[i]["y"].append(float(row[3*i+3]))
-                                points[i]["z"].append(float(row[3*i+4]))
+                                if names_collected:
+                                    points[names[i]]["x"].append(float(row[3*i+2]))
+                                    points[names[i]]["y"].append(float(row[3*i+3]))
+                                    points[names[i]]["z"].append(float(row[3*i+4]))
+                                else:
+                                    points[i]["x"].append(float(row[3*i+2]))
+                                    points[i]["y"].append(float(row[3*i+3]))
+                                    points[i]["z"].append(float(row[3*i+4]))
                                 time = True
                             else:
                                 time = False
@@ -151,11 +158,18 @@ def read_dataset(file, path):
                         collect = True
                         for i in range(int((len(row)-2)/3)):
                             if row[3*i+2] != '' and row[3*i+3] != '' and row[3*i+4] != '':
-                                points[i]={
+                                if names_collected:
+                                    points[names[i]]={
                                     "x":[float(row[3*i+2])],
                                  "y":[float(row[3*i+3])],
                                   "z":[float(row[3*i+4])]
                                   }
+                                else:
+                                    points[i]={
+                                        "x":[float(row[3*i+2])],
+                                    "y":[float(row[3*i+3])],
+                                    "z":[float(row[3*i+4])]
+                                    }
                                 time = True
                                 start = True
                             else:
@@ -173,6 +187,44 @@ def files_from_path(path, file_type):
             files.append(f)
     
     return files
+
+#%%
+def distance_plotting(dataset, points_between):
+    from matplotlib import pyplot as plt
+    mes_dist = {}
+    for record in dataset:
+        mes_dist[record] = {}
+        dists = []
+        temp_l = None
+        temp_r = None
+        for joints in dataset[record]:
+            
+            if joints == points_between[0]:
+                temp_r = dataset[record][joints].copy()
+                name_r = joints
+            if joints == points_between[1]:
+                temp_l = dataset[record][joints].copy()
+                name_l = joints
+            if joints == points_between[0]:
+                temp_r = dataset[record][joints].copy()
+                name_r = joints
+            if joints == points_between[1]:
+                temp_l = dataset[record][joints].copy()
+                name_l = joints
+        if temp_l and temp_r:
+            for i in range(len(temp_l['x'])):
+                
+                dists.append(np.sqrt(pow((temp_l['x'][i]-temp_r['x'][i]),2)+
+                pow((temp_l['y'][i]-temp_r['y'][i]),2)+
+                pow((temp_l['z'][i]-temp_r['z'][i]),2)))
+            print(len(dists))
+            print("jointok: " +str(len(temp_l['x'])))
+        if len(dists) > 1:
+            plt.plot(dists)
+            title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
+            plt.title(title)
+            plt.show()
+
 #%% Landmarks array to csv
 
 def landmark_to_csv(time_data, landmark, file):
