@@ -193,7 +193,6 @@ def distance_plotting(dataset, points_between):
     from matplotlib import pyplot as plt
     mes_dist = {}
     for record in dataset:
-        mes_dist[record] = {}
         dists = []
         temp_l = None
         temp_r = None
@@ -224,6 +223,8 @@ def distance_plotting(dataset, points_between):
             title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
             plt.title(title)
             plt.show()
+            mes_dist[record] = dists
+    return mes_dist
 
 #%% Landmarks array to csv
 

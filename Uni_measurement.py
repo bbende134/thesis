@@ -61,7 +61,9 @@ for i in range(len(files)):
 # plt.show()
 #%% Create new data for plotting and analyze
 
-functions.distance_plotting(data_points, [16,15])
+dist_mp_hands = functions.distance_plotting(data_points, [16,15])
+dist_ot_hands = functions.distance_plotting(data_points, ["Bende:l_wrist","Bende:r_wrist"])
+
 
 
 
