@@ -189,7 +189,7 @@ def files_from_path(path, file_type):
     return files
 
 #%%
-def distance_plotting(dataset, points_between):
+def distance_plotting(dataset, points_between, plotting):
     from matplotlib import pyplot as plt
     mes_dist = {}
     for record in dataset:
@@ -216,15 +216,48 @@ def distance_plotting(dataset, points_between):
                 dists.append(np.sqrt(pow((temp_l['x'][i]-temp_r['x'][i]),2)+
                 pow((temp_l['y'][i]-temp_r['y'][i]),2)+
                 pow((temp_l['z'][i]-temp_r['z'][i]),2)))
-            print(len(dists))
-            print("jointok: " +str(len(temp_l['x'])))
+        if plotting:
+            if len(dists) > 1:
+                plt.plot(dists)
+                title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
+                plt.title(title)
+                plt.show()
         if len(dists) > 1:
-            plt.plot(dists)
-            title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
-            plt.title(title)
-            plt.show()
             mes_dist[record] = dists
     return mes_dist
+
+#%% Syncing data 
+
+def find_start_sync(dataset):
+    start = {}
+    temp = [None]*150
+    for record in dataset:
+        for i in range(150):
+            temp[i] = dataset[record][i]
+        print(record)
+        if record.find("squat_1") > 0:
+            start[record] = max(range(len(temp)), key=temp.__getitem__)
+            print("The max index: "+str(np.argmax(temp))+" with value: "+str(max(temp)))
+        else:
+            print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
+            start[record] = min(range(len(temp)), key=temp.__getitem__)
+    return start
+
+#%% Sync data
+
+def mod_data(dataset, start_index):
+    temp = []
+    for record in dataset:
+        for start in start_index:
+            if start == record:
+                print("valid")
+                for joint in dataset[record]:
+                    for coordinates in dataset[record][joint]:
+                        before = len(dataset[record][joint][coordinates])
+                        dataset[record][joint][coordinates] = dataset[record][joint][coordinates][start_index[start]:]
+                        after = len(dataset[record][joint][coordinates])
+                        temp.append(before-after)
+    return dataset
 
 #%% Landmarks array to csv
 
