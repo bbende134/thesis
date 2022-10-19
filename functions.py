@@ -216,14 +216,13 @@ def distance_plotting(dataset, points_between, plotting):
                 dists.append(np.sqrt(pow((temp_l['x'][i]-temp_r['x'][i]),2)+
                 pow((temp_l['y'][i]-temp_r['y'][i]),2)+
                 pow((temp_l['z'][i]-temp_r['z'][i]),2)))
-        if plotting:
-            if len(dists) > 1:
+        if len(dists) > 1:
+            mes_dist[record] = dists
+            if plotting:
                 plt.plot(dists)
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
                 plt.show()
-        if len(dists) > 1:
-            mes_dist[record] = dists
     return mes_dist
 
 #%% Syncing data 
@@ -245,19 +244,48 @@ def find_start_sync(dataset):
 
 #%% Sync data
 
-def mod_data(dataset, start_index):
-    temp = []
+def mod_data(dataset, time, start_index):
+    import matplotlib.pyplot as plt
+    new_dataset = {}
     for record in dataset:
         for start in start_index:
             if start == record:
-                print("valid")
+                new_dataset[start] = {}
                 for joint in dataset[record]:
+                    new_dataset[start][joint] = {}
                     for coordinates in dataset[record][joint]:
-                        before = len(dataset[record][joint][coordinates])
-                        dataset[record][joint][coordinates] = dataset[record][joint][coordinates][start_index[start]:]
-                        after = len(dataset[record][joint][coordinates])
-                        temp.append(before-after)
-    return dataset
+                        new_dataset[record][joint][coordinates] = dataset[record][joint][coordinates][start_index[start]:]
+    new_time = {}
+    for record in dataset:
+        for start in start_index:
+            if start == record:
+                new_time[record] = {}
+                new_time[record] = time[record][start_index[start]:]
+                        
+    return new_dataset, new_time
+
+#%% Interpolation resampling
+
+def resample_by_interpolation(signal, input_fs, output_fs):
+
+    scale = output_fs / input_fs
+    # calculate new length of sample
+    n = round(len(signal) * scale)
+
+    # use linear interpolation
+    # endpoint keyword means than linspace doesn't go all the way to 1.0
+    # If it did, there are some off-by-one errors
+    # e.g. scale=2.0, [1,2,3] should go to [1,1.5,2,2.5,3,3]
+    # but with endpoint=True, we get [1,1.4,1.8,2.2,2.6,3]
+    # Both are OK, but since resampling will often involve
+    # exact ratios (i.e. for 44100 to 22050 or vice versa)
+    # using endpoint=False gets less noise in the resampled sound
+    resampled_signal = np.interp(
+        np.linspace(0.0, 1.0, n, endpoint=False),  # where to interpret
+        np.linspace(0.0, 1.0, len(signal), endpoint=False),  # known positions
+        signal,  # known data points
+    )
+    return resampled_signal
 
 #%% Landmarks array to csv
 

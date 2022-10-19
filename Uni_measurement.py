@@ -59,7 +59,7 @@ for i in range(len(files)):
 #   frames=len(data_points['Wed_Oct_12_16_06_18_2022_pose_csillag.csv'][24]['x']),
 #    interval=((1/25)*1000))
 # plt.show()
-#%% Create new data for plotting
+#%% Create new data for syncing
 
 def Merge(dict1, dict2):
     res = {**dict1, **dict2}
@@ -75,26 +75,34 @@ dist_hands = Merge(dist_mp_hands, dist_ot_hands)
 
 start_sync_datasample = functions.find_start_sync(dist_hands)
 
+data_points_synced, time_synced = functions.mod_data(data_points,start_sync_datasample)
 
-data_points_synced = functions.mod_data(data_points,start_sync_datasample)
+# %% Resampling phase 
 
-
-# %%
 import numpy as np
-from scipy import signal
 import matplotlib.pyplot as plt
 
-x = np.linspace(0, 10, len(data_points['ot_csillag_1.csv']['Bende:l_wrist']['y']), endpoint=False)
-y = data_points['ot_csillag_1.csv']['Bende:l_wrist']['y']
+def data_resample(dataset, time):
+    for record in dataset:
+        if record.find('ot_'):
+            for joint in dataset[record]:
+                for coordinates in dataset[record][joint]:
+                    f = functions.resample_by_interpolation(y,
+                        len(dataset[record][joint][coordinates]),
+                        int(25/120*len(dataset[record][joint][coordinates])))
 
-f = signal.resample(y,
-len(data_points['mp_pose_world_csillag_1.csv'][15]['y']))
-xnew = np.linspace(0, 10, len(data_points['mp_pose_world_csillag_1.csv'][15]['y']), endpoint=False)
 
-x = np.linspace(0, 10, len(data_points['mp_pose_world_csillag_1.csv'][15]['y']), endpoint=False)
-y = data_points['mp_pose_world_csillag_1.csv'][15]['y']
+x = time_data['ot_csillag_1.csv']
+y = data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']
 
-plt.plot(x, y, '.-', xnew, f, '.-', 10, y[0], 'ro')
+f = functions.resample_by_interpolation(y,len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']),int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))
+#f = signal.resample(y,int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))
+xnew = np.linspace(0, x[-1], int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])), endpoint=False)
+
+# x = np.linspace(0, 10, len(data_points_synced['mp_pose_world_csillag_1.csv'][15]['y']), endpoint=False)
+# y = data_points_synced['mp_pose_world_csillag_1.csv'][15]['y']
+
+plt.plot(x, y, '.-',xnew, f, '.-', 10, y[0], 'ro')
 plt.legend(['MediaPipe', 'OptiTrack'], loc='best')
 plt.show()
 # %%
