@@ -5,6 +5,7 @@ Created on Tue Aug 16 09:58:39 2022
 @author: BAR7BP
 """
 #%% find
+import re
 import objects
 import functions
 from matplotlib import pyplot as plt
@@ -75,25 +76,14 @@ dist_hands = Merge(dist_mp_hands, dist_ot_hands)
 
 start_sync_datasample = functions.find_start_sync(dist_hands)
 
-data_points_synced, time_synced = functions.mod_data(data_points,start_sync_datasample)
+data_points_synced, time_synced = functions.mod_data(data_points,time_data, start_sync_datasample)
 
 # %% Resampling phase 
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-def data_resample(dataset, time):
-    for record in dataset:
-        if record.find('ot_'):
-            for joint in dataset[record]:
-                for coordinates in dataset[record][joint]:
-                    f = functions.resample_by_interpolation(y,
-                        len(dataset[record][joint][coordinates]),
-                        int(25/120*len(dataset[record][joint][coordinates])))
-
-
 x = time_data['ot_csillag_1.csv']
 y = data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']
+
+data_points_resampled, time_resampled = functions.data_resample(data_points_synced, time_synced)
 
 f = functions.resample_by_interpolation(y,len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']),int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))
 #f = signal.resample(y,int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))

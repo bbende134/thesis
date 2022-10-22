@@ -287,6 +287,31 @@ def resample_by_interpolation(signal, input_fs, output_fs):
     )
     return resampled_signal
 
+#%% Resample full dataset and time
+
+def data_resample(dataset, time):
+    resampled_dataset = {}
+    resampled_time = {}
+    for record in dataset:
+        if record.find("ot_") >= 0:
+            resampled_dataset[record] = {}
+            for joint in dataset[record]:
+                resampled_dataset[record][joint] = {}
+                for coordinates in dataset[record][joint]:
+                    resampled_dataset[record][joint][coordinates] = functions.resample_by_interpolation(y,
+                    len(dataset[record][joint][coordinates]),
+                    int(25/120*len(dataset[record][joint][coordinates])))
+            x = time[record]
+            resampled_time[record] = np.linspace(0,
+             x[-1],
+             int(len(resampled_dataset[record][joint][coordinates])),
+             endpoint=False
+             )
+        else:
+            resampled_dataset[record] = dataset[record]
+            resampled_time[record] = time[record]
+    return resampled_dataset, resampled_time
+
 #%% Landmarks array to csv
 
 def landmark_to_csv(time_data, landmark, file):
