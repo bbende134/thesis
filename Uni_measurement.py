@@ -92,8 +92,53 @@ xnew = np.linspace(0, x[-1], int(25/120*len(data_points_synced['ot_csillag_1.csv
 # x = np.linspace(0, 10, len(data_points_synced['mp_pose_world_csillag_1.csv'][15]['y']), endpoint=False)
 # y = data_points_synced['mp_pose_world_csillag_1.csv'][15]['y']
 
-plt.plot(x, y, '.-',xnew, f, '.-', 10, y[0], 'ro')
+plt.plot(x, y, '.-',xnew, f, '.-')
 plt.legend(['MediaPipe', 'OptiTrack'], loc='best')
+# %%
+
+# dist_mp_hands = functions.distance_plotting(data_points_resampled, [24,28], True, time_resampled)
+# dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_hip","Bende:l_ankle"], True, time_resampled)
+
+# %%
+dist_mp_hands = functions.distance_plotting(data_points_resampled, [16,14], False, time_resampled)
+dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
+
+#%%
+
+import matplotlib.colors as mcolors
+
+
+by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
+                    name)
+                for name, color in mcolors.TABLEAU_COLORS.items())
+names = [name for hsv, name in by_hsv]
+print(by_hsv)
+
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+
+setattr(Axes3D, 'arrow3D', functions._arrow3D)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlim(0,2)
+ax.arrow3D(0,0,0,
+           1,1,1,
+           mutation_scale=20,
+           arrowstyle="-|>",
+           linestyle='dashed')
+ax.arrow3D(1,0,0,
+           1,1,1,
+           mutation_scale=20,
+           fc='red')
+ax.set_title('3D Arrows Demo')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+
+import bodyPlot
+
+bodyPlot.plot_world_landmarks(ax,data_points_resampled['ot_csillag_1.csv'],150, False)
+
+fig.tight_layout()
 plt.show()
-# %%
-# %%
+
