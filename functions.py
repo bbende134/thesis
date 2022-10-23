@@ -189,7 +189,7 @@ def files_from_path(path, file_type):
     return files
 
 #%%
-def distance_plotting(dataset, points_between, plotting):
+def distance_plotting(dataset, points_between, plotting, time=None):
     from matplotlib import pyplot as plt
     mes_dist = {}
     for record in dataset:
@@ -219,10 +219,15 @@ def distance_plotting(dataset, points_between, plotting):
         if len(dists) > 1:
             mes_dist[record] = dists
             if plotting:
-                plt.plot(dists)
+                
+                plt.plot(time[record], dists, '.-')
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
+                title = title.replace(" ", "_")
+                title = title.replace(":", "_")
+                plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 plt.show()
+                
     return mes_dist
 
 #%% Syncing data 
@@ -298,9 +303,10 @@ def data_resample(dataset, time):
             for joint in dataset[record]:
                 resampled_dataset[record][joint] = {}
                 for coordinates in dataset[record][joint]:
-                    resampled_dataset[record][joint][coordinates] = functions.resample_by_interpolation(y,
-                    len(dataset[record][joint][coordinates]),
-                    int(25/120*len(dataset[record][joint][coordinates])))
+                    resampled_dataset[record][joint][coordinates] = resample_by_interpolation(
+                        dataset[record][joint][coordinates],
+                        len(dataset[record][joint][coordinates]),
+                        int(25/120*len(dataset[record][joint][coordinates])))
             x = time[record]
             resampled_time[record] = np.linspace(0,
              x[-1],
@@ -311,6 +317,14 @@ def data_resample(dataset, time):
             resampled_dataset[record] = dataset[record]
             resampled_time[record] = time[record]
     return resampled_dataset, resampled_time
+
+#%%
+import objects
+def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
+    '''Add an 3d arrow to an `Axes3D` instance.'''
+
+    arrow = objects.Arrow3D(x, y, z, dx, dy, dz, *args, **kwargs)
+    ax.add_artist(arrow)
 
 #%% Landmarks array to csv
 
