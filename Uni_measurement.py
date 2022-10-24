@@ -105,15 +105,6 @@ dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wri
 
 #%%
 
-import matplotlib.colors as mcolors
-
-
-by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
-                    name)
-                for name, color in mcolors.TABLEAU_COLORS.items())
-names = [name for hsv, name in by_hsv]
-print(by_hsv)
-
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 setattr(Axes3D, 'arrow3D', functions._arrow3D)
@@ -126,8 +117,14 @@ ax.arrow3D(0,0,0,
            mutation_scale=20,
            arrowstyle="-|>",
            linestyle='dashed')
-ax.arrow3D(1,0,0,
-           1,1,1,
+
+ax.arrow3D(data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['y'][100],
+            data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['y'][100],
+           
+           mutation_scale=20,
+           fc='red')
+ax.arrow3D(data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['y'][100],
+           data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['y'][100],
            mutation_scale=20,
            fc='red')
 ax.set_title('3D Arrows Demo')
@@ -137,8 +134,9 @@ ax.set_zlabel('z')
 
 import bodyPlot
 
-bodyPlot.plot_world_landmarks(ax,data_points_resampled['ot_csillag_1.csv'],150, False)
+bodyPlot.plot_world_landmarks(ax,data_points_resampled['ot_csillag_1.csv'],100, False)
 
 fig.tight_layout()
 plt.show()
 
+print(data_points_synced['mp_pose_world_csillag_1.csv'][15]['x'][150],data_points_synced['mp_pose_world_csillag_1.csv'][15]['y'][150],(-1)*data_points_synced['mp_pose_world_csillag_1.csv'][15]['z'][150])

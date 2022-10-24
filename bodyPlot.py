@@ -98,7 +98,7 @@ def plot_world_landmarks(
         waist_y.append(point[2])
         waist_z.append(point[1] * (-1))
             
-    ax.cla()
+    #ax.cla()
     ax.set_xlim3d(-1, 1)
     ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
