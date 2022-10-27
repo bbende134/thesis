@@ -66,8 +66,8 @@ def Merge(dict1, dict2):
     res = {**dict1, **dict2}
     return res
 
-dist_mp_hands = functions.distance_plotting(data_points, [16,15], False)
-dist_ot_hands = functions.distance_plotting(data_points, ["Bende:l_wrist","Bende:r_wrist"], False)
+dist_mp_hands = functions.distance_plotting(data_points, [16,15], False, time_data)
+dist_ot_hands = functions.distance_plotting(data_points, ["Bende:l_wrist","Bende:r_wrist"], False, time_data)
 
 dist_hands = Merge(dist_mp_hands, dist_ot_hands)
 
@@ -78,12 +78,63 @@ start_sync_datasample = functions.find_start_sync(dist_hands)
 
 data_points_synced, time_synced = functions.mod_data(data_points,time_data, start_sync_datasample)
 
+def create_pairs(dataset, time):
+    ot = 'ot_'
+    pairs = {}
+    time_pairs = {}
+    exercises = []
+    dataset_keys = dataset.keys()
+    for names in dataset_keys:
+        names = names.replace('.csv', '')
+        if names.find(ot) > -1:
+            exercises.append(names[len(ot):])
+    for exercise in exercises:
+        pairs[exercise] = {}
+        time_pairs[exercise] = {}
+        for record in dataset:
+            if record.find(exercise) > -1:
+                pairs[exercise][record] = dataset[record]
+                time_pairs[exercise][record] = time[record]
+
+    return pairs, time_pairs
+    
+
+
+paird_data_points, paired_time = create_pairs(data_points_synced,time_synced)
+
+def pair_same_length(dataset, time):
+    temp_pair_min = {}
+    for pair in time:
+        temp = []
+        for record in time[pair]:
+            temp.append(max(time[pair][record]))
+        temp_pair_min[pair] = min(temp)
+    for pair in time:
+        for record in time[pair]:
+            found = False
+            for i,t in enumerate(time[pair][record]):
+                if t > temp_pair_min[pair] and not found:
+                    print("t is bigger: t = " + str(t) + " min max = " + str(temp_pair_min[pair])+ " at rec. "+ record + " with index: "+ str(i))
+                    for joint in dataset[pair][record]:
+                        for coordinates in dataset[pair][record][joint]:
+                            dataset[pair][record][joint][coordinates] = dataset[pair][record][joint][coordinates][:i]
+                    time[pair][record] = time[pair][record][:i]
+                    
+                    found = True
+    return dataset, time
+    
+cutted_data_points, time_cutted =  pair_same_length(paird_data_points,paired_time)
+
 # %% Resampling phase 
 
-x = time_data['ot_csillag_1.csv']
-y = data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']
+# x = time_data['ot_csillag_1.csv']
+# y = data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']
 
-data_points_resampled, time_resampled = functions.data_resample(data_points_synced, time_synced)
+data_points_resampled, time_resampled = functions.data_resample(cutted_data_points, time_cutted)
+
+dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15,"Bende:l_wrist","Bende:r_wrist"], True, time_resampled)
+#dist_ot_hands = functions.distance_plotting_pair(data_points_resampled, ["Bende:l_wrist","Bende:r_wrist"], True, time_resampled)
+
 
 f = functions.resample_by_interpolation(y,len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y']),int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))
 #f = signal.resample(y,int(25/120*len(data_points_synced['ot_csillag_1.csv']['Bende:l_wrist']['y'])))
@@ -100,8 +151,8 @@ plt.legend(['MediaPipe', 'OptiTrack'], loc='best')
 # dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_hip","Bende:l_ankle"], True, time_resampled)
 
 # %%
-dist_mp_hands = functions.distance_plotting(data_points_resampled, [16,14], False, time_resampled)
-dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
+dist_mp_hands = functions.distance_plotting(data_points_resampled, [16,15], False)
+dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wrist","Bende:r_wrist"], False, time_resampled)
 
 #%%
 
@@ -139,4 +190,31 @@ bodyPlot.plot_world_landmarks(ax,data_points_resampled['ot_csillag_1.csv'],100, 
 fig.tight_layout()
 plt.show()
 
-print(data_points_synced['mp_pose_world_csillag_1.csv'][15]['x'][150],data_points_synced['mp_pose_world_csillag_1.csv'][15]['y'][150],(-1)*data_points_synced['mp_pose_world_csillag_1.csv'][15]['z'][150])
+#%% 
+from dtaidistance import dtw
+from dtaidistance import dtw_visualisation as dtwvis
+
+s2 = list(dist_mp_hands['mp_pose_world_csillag_1.csv'])
+s1 = list(dist_ot_hands['ot_csillag_1.csv'])
+
+# if len(s1) > len(s2):
+#     while len(s1) > len(s2):
+#         s1.pop()
+# elif len(s2) > len(s1):
+#     while len(s2) > len(s1):
+#         s2.pop()
+for i in range(60):
+    s1.pop()
+
+for i in range(20):
+    s1.pop(0)
+    s2.pop(0)
+
+path = dtw.warping_path(s1, s2)
+dtwvis.plot_warping(s1, s2, path, filename="warp.png")
+d, paths = dtw.warping_paths(s1, s2, window=100, psi=2)
+best_path = dtw.best_path(paths)
+dtwvis.plot_warpingpaths(s1, s2, paths, best_path)
+# %%
+
+# %%

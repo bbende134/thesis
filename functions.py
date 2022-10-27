@@ -218,7 +218,7 @@ def distance_plotting(dataset, points_between, plotting, time=None):
                 pow((temp_l['z'][i]-temp_r['z'][i]),2)))
         if len(dists) > 1:
             mes_dist[record] = dists
-            if plotting:
+            if plotting and time:
                 
                 plt.plot(time[record], dists, '.-')
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
@@ -227,6 +227,63 @@ def distance_plotting(dataset, points_between, plotting, time=None):
                 title = title.replace(":", "_")
                 plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 plt.show()
+            elif plotting:
+                print("no time data")
+                
+    return mes_dist
+
+# %% Distance plotting pairs
+
+def distance_plotting_pair(dataset, points_between, plotting, time=None):
+    from matplotlib import pyplot as plt
+    mes_dist = {}
+    for pair in dataset:
+        mes_dist[pair] = {}
+        for record in dataset[pair]:
+            dists = []
+            temp_l = None
+            temp_r = None
+            for joints in dataset[pair][record]:
+                
+                if joints == points_between[0]:
+                    temp_r = dataset[pair][record][joints].copy()
+                    name_r = joints
+                if joints == points_between[1]:
+                    temp_l = dataset[pair][record][joints].copy()
+                    name_l = joints
+                if joints == points_between[2]:
+                    temp_r = dataset[pair][record][joints].copy()
+                    name_r = joints
+                if joints == points_between[3]:
+                    temp_l = dataset[pair][record][joints].copy()
+                    name_l = joints
+            if temp_l and temp_r:
+                for i in range(len(temp_l['x'])):
+                    
+                    dists.append(np.sqrt(pow((temp_l['x'][i]-temp_r['x'][i]),2)+
+                    pow((temp_l['y'][i]-temp_r['y'][i]),2)+
+                    pow((temp_l['z'][i]-temp_r['z'][i]),2)))
+            if len(dists) > 1:
+                mes_dist[pair][record] = dists
+    for pair in mes_dist:
+        plot_data_y = []
+        plot_data_x = []
+        for record in mes_dist[pair]:
+            if plotting and time[pair]:
+                # plot_data_y.append(mes_dist[pair][record])
+                # plot_data_x.append(time[pair][record])
+                plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
+                plt.title(title)
+                # title = title.replace(" ", "_")
+                # title = title.replace(":", "_")
+                # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+                
+            elif plotting:
+                print("no time data")
+        if plotting and time[pair]:
+            #plt.plot(plot_data_x[0], plot_data_y[0], '.-',plot_data_x[1], plot_data_y[1], '.-')
+            plt.show()
                 
     return mes_dist
 
@@ -276,15 +333,6 @@ def resample_by_interpolation(signal, input_fs, output_fs):
     scale = output_fs / input_fs
     # calculate new length of sample
     n = round(len(signal) * scale)
-
-    # use linear interpolation
-    # endpoint keyword means than linspace doesn't go all the way to 1.0
-    # If it did, there are some off-by-one errors
-    # e.g. scale=2.0, [1,2,3] should go to [1,1.5,2,2.5,3,3]
-    # but with endpoint=True, we get [1,1.4,1.8,2.2,2.6,3]
-    # Both are OK, but since resampling will often involve
-    # exact ratios (i.e. for 44100 to 22050 or vice versa)
-    # using endpoint=False gets less noise in the resampled sound
     resampled_signal = np.interp(
         np.linspace(0.0, 1.0, n, endpoint=False),  # where to interpret
         np.linspace(0.0, 1.0, len(signal), endpoint=False),  # known positions
@@ -297,25 +345,28 @@ def resample_by_interpolation(signal, input_fs, output_fs):
 def data_resample(dataset, time):
     resampled_dataset = {}
     resampled_time = {}
-    for record in dataset:
-        if record.find("ot_") >= 0:
-            resampled_dataset[record] = {}
-            for joint in dataset[record]:
-                resampled_dataset[record][joint] = {}
-                for coordinates in dataset[record][joint]:
-                    resampled_dataset[record][joint][coordinates] = resample_by_interpolation(
-                        dataset[record][joint][coordinates],
-                        len(dataset[record][joint][coordinates]),
-                        int(25/120*len(dataset[record][joint][coordinates])))
-            x = time[record]
-            resampled_time[record] = np.linspace(0,
-             x[-1],
-             int(len(resampled_dataset[record][joint][coordinates])),
-             endpoint=False
-             )
-        else:
-            resampled_dataset[record] = dataset[record]
-            resampled_time[record] = time[record]
+    for pair in dataset:
+        resampled_dataset[pair] = {}
+        resampled_time[pair] = {}
+        for record in dataset[pair]:
+            if record.find("ot_") >= 0:
+                resampled_dataset[pair][record] = {}
+                for joint in dataset[pair][record]:
+                    resampled_dataset[pair][record][joint] = {}
+                    for coordinates in dataset[pair][record][joint]:
+                        resampled_dataset[pair][record][joint][coordinates] = resample_by_interpolation(
+                            dataset[pair][record][joint][coordinates],
+                            len(dataset[pair][record][joint][coordinates]),
+                            int(25/120*len(dataset[pair][record][joint][coordinates])))
+                x = time[pair][record]
+                resampled_time[pair][record] = np.linspace(0,
+                x[-1],
+                int(len(resampled_dataset[pair][record][joint][coordinates])),
+                endpoint=False
+                )
+            else:
+                resampled_dataset[pair][record] = dataset[pair][record]
+                resampled_time[pair][record] = time[pair][record]
     return resampled_dataset, resampled_time
 
 #%%

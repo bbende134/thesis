@@ -57,7 +57,7 @@ j = 0
 k = 0
 rep_count = 0
 inp = input()
-with mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7) as pose:
+with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
     #pers = objects.Person()
     rec_on = False
     rec = False
@@ -83,13 +83,13 @@ with mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7) as 
                 
                 mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
                 landmarks = results.pose_landmarks.landmark
-                if landmarks[16].visibility >= 0.7 and landmarks[0].visibility >= 0.7:
+                if landmarks[0].visibility >= 0.7:
                     functions.write_on_image(img, 'Visible', (10,70), (0, 255, 0))
                     start_dist = functions.dist_2_landmarks(landmarks, [20,19])
 
                     if (start_dist < 0.1) and rec_on:
                         rec = False
-                    elif (start_dist < 0.1):
+                    elif (start_dist < 0.06):
                         rec = True
                     if rec:        
                         moves_pose.append(functions.land_to_arr(results.pose_landmarks.landmark).copy())
@@ -135,13 +135,14 @@ date_act = date_act.strftime("%c")
 date_act = date_act.replace(" ", "_")
 date_act = date_act.replace(":", "_")
 
-with open("C:/dev/thesis/data/mp_pose_"+ inp + date_act + ".csv", "w", newline="") as f:
+with open("C:/dev/thesis/data/mp_pose_"+ str(inp) + date_act + ".csv", "w", newline="") as f:
     writer = csv.writer(f)
     functions.landmark_to_csv(t_data,moves_pose,writer)
-with open("C:/dev/thesis/data/mp_pose_world_"+ inp  + date_act + ".csv", "w", newline="") as f:
+    f.close()
+with open("C:/dev/thesis/data/mp_pose_world_"+ str(inp)  + date_act + ".csv", "w", newline="") as f:
     writer = csv.writer(f)
     functions.landmark_to_csv(t_data,moves_world,writer)
-
+    f.close()
 # %%
 
 
