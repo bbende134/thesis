@@ -237,6 +237,7 @@ def distance_plotting(dataset, points_between, plotting, time=None):
 def distance_plotting_pair(dataset, points_between, plotting, time=None):
     from matplotlib import pyplot as plt
     mes_dist = {}
+    all_dists = {}
     for pair in dataset:
         mes_dist[pair] = {}
         for record in dataset[pair]:
@@ -266,15 +267,20 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
             if len(dists) > 1:
                 mes_dist[pair][record] = dists
     for pair in mes_dist:
+        temp_legend = []
         plot_data_y = []
         plot_data_x = []
         for record in mes_dist[pair]:
+            temp_legend.append(record)
             if plotting and time[pair]:
                 # plot_data_y.append(mes_dist[pair][record])
                 # plot_data_x.append(time[pair][record])
-                plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                #plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                plt.plot(mes_dist[pair][record], '.-')
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
+                plt.xlabel("Mintavétel száma [-]")
+                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 # title = title.replace(" ", "_")
                 # title = title.replace(":", "_")
                 # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
@@ -282,7 +288,7 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
             elif plotting:
                 print("no time data")
         if plotting and time[pair]:
-            #plt.plot(plot_data_x[0], plot_data_y[0], '.-',plot_data_x[1], plot_data_y[1], '.-')
+            plt.legend(temp_legend)
             plt.show()
                 
     return mes_dist
@@ -299,10 +305,55 @@ def find_start_sync(dataset):
         if record.find("squat_1") > 0:
             start[record] = max(range(len(temp)), key=temp.__getitem__)
             print("The max index: "+str(np.argmax(temp))+" with value: "+str(max(temp)))
+        elif record.find("kitores") > 0:
+            if record.find('ot_') > -1:
+                print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
+                start[record] = min(range(len(temp)), key=temp.__getitem__)
+            else: 
+                mp_temp = []
+                for i in range(20):
+                    mp_temp.append(dataset[record][i])
+                print("The min index: "+str(np.argmin(mp_temp))+" with value: "+str(min(mp_temp)))
+                start[record] = min(range(len(mp_temp)), key=mp_temp.__getitem__)
         else:
             print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
             start[record] = min(range(len(temp)), key=temp.__getitem__)
     return start
+
+#%% Pairing up data
+
+def create_pairs(dataset, time):
+    ot = 'ot_'
+    pairs = {}
+    time_pairs = {}
+    exercises = []
+    dataset_keys = dataset.keys()
+    for names in dataset_keys:
+        names = names.replace('.csv', '')
+        if names.find(ot) > -1:
+            exercises.append(names[len(ot):])
+    for exercise in exercises:
+        pairs[exercise] = {}
+        time_pairs[exercise] = {}
+        for record in dataset:
+            if record.find(exercise) > -1:
+                pairs[exercise][record] = dataset[record]
+                time_pairs[exercise][record] = time[record]
+    return pairs, time_pairs
+
+#%% Manual cutting the same length
+
+def manual_cut(dataset, time):
+    import pointsCut
+    for pair in dataset:
+        for record in dataset[pair]:
+            if record.find('mp_') > -1:
+                for cut in range(pointsCut.cut_points[pair][record]):
+                    for joint in dataset[pair][record]:
+                        for coordinates in dataset[pair][record][joint]:
+                            dataset[pair][record][joint][coordinates].pop()
+                    time[pair][record].pop()
+    return dataset, time
 
 #%% Sync data
 
@@ -345,11 +396,19 @@ def resample_by_interpolation(signal, input_fs, output_fs):
 def data_resample(dataset, time):
     resampled_dataset = {}
     resampled_time = {}
+    resamp_data = {}
     for pair in dataset:
+        for record in dataset[pair]:
+            if record.find("mp_") >= 0:
+                resamp_data[pair] = [len(dataset[pair][record][0]['x']),min(time[pair][record])]
+    for pair in dataset:
+        
         resampled_dataset[pair] = {}
         resampled_time[pair] = {}
         for record in dataset[pair]:
             if record.find("ot_") >= 0:
+                rec_name = record.replace('.csv', '')
+                rec_name = rec_name[3:]
                 resampled_dataset[pair][record] = {}
                 for joint in dataset[pair][record]:
                     resampled_dataset[pair][record][joint] = {}
@@ -357,9 +416,10 @@ def data_resample(dataset, time):
                         resampled_dataset[pair][record][joint][coordinates] = resample_by_interpolation(
                             dataset[pair][record][joint][coordinates],
                             len(dataset[pair][record][joint][coordinates]),
-                            int(25/120*len(dataset[pair][record][joint][coordinates])))
+                            resamp_data[pair][0])
+                        
                 x = time[pair][record]
-                resampled_time[pair][record] = np.linspace(0,
+                resampled_time[pair][record] = np.linspace(resamp_data[pair][1],
                 x[-1],
                 int(len(resampled_dataset[pair][record][joint][coordinates])),
                 endpoint=False
