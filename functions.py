@@ -453,6 +453,67 @@ def landmark_to_csv(time_data, landmark, file):
         marks.insert(0,i)
     file.writerows(landmark)
 
+#%% Box plotting functions
+
+def box_plotting_for_pair(dataset):
+    from matplotlib import pyplot as plt
+    for pair in dataset:
+        fig, ax = plt.subplots()
+        label_for_plots = []
+        plot_data = []
+        ax.set_title(pair)
+        for record in dataset[pair]:
+            label_for_plots.append(record)
+            plot_data.append(dataset[pair][record].copy())
+        ax.boxplot(plot_data, labels=label_for_plots, notch=True)
+        plt.ylabel("Kéz hosszának szórása, átlaga")
+        plt.xlabel("Adatsorok")
+        plt.show()
+
+def box_plotting_for_all(dataset, title_name = None):
+    from matplotlib import pyplot as plt
+    plot_data = {}
+    label_for_plots = ["OptiTrack","MediaPipe Pose","MediaPipe Pose World"]
+    for pair in dataset:
+        
+        for record in dataset[pair]:
+            if record.find('ot_') > -1:
+                try:
+                    for dists in dataset[pair][record]:
+                        plot_data[label_for_plots[0]].append(dists.copy())
+                except KeyError:
+                    plot_data[label_for_plots[0]] = dataset[pair][record].copy()
+            elif record.find('pose_world_') > -1:
+                try:    
+                    for dists in dataset[pair][record]:
+                        plot_data[label_for_plots[1]].append(dists.copy())
+                except KeyError:
+                    plot_data[label_for_plots[1]] = dataset[pair][record].copy()
+            else:
+                try:
+                    for dists in dataset[pair][record]:
+                        plot_data[label_for_plots[2]].append(dists.copy())
+                except KeyError:
+                    plot_data[label_for_plots[2]] = dataset[pair][record].copy()
+    temp_data = []
+    for mts in plot_data:
+        temp_data.append(plot_data[mts])
+    fig, ax = plt.subplots()
+    if title_name != None:
+        title_name = "Boxplot: " + title_name
+        ax.set_title(title_name)
+        title_name = title_name.replace(" ", "_")
+        title_name = title_name.replace(":", "_")
+    else:
+        ax.set_title("Szórási boxplot")
+    bp_data = ax.boxplot(temp_data, labels=label_for_plots, notch=True)
+    plt.ylabel("Length")
+    plt.xlabel("Datasets")
+
+    f = "C:/dev/thesis/data/plots/" + title_name + ".svg"
+    plt.savefig(f, format='svg')
+    plt.show()
+    return bp_data
 #%% landmark to array
 
 def land_to_arr(landmark):

@@ -85,26 +85,81 @@ data_points_resampled, time_resampled = functions.data_resample(cutted_data_poin
 # dist_mp_hands = functions.distance_plotting(data_points_resampled, [24,28], True, time_resampled)
 # dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_hip","Bende:l_ankle"], True, time_resampled)
 
-#%% Getting distances for hands (should be the same length)
+#%% Box plotting of rigid bodies
+
+rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
+"right hand forearm":[16,14, "Bende:r_wrist","Bende:r_elbow"],
+"left hand upper arm":[11,13, "Bende:l_elbow","Bende:l_shoulder"],
+"right hand upper arm":[12,14, "Bende:r_elbow","Bende:r_shoulder"],
+"shoulder width":[12,11, "Bende:l_shoulder","Bende:r_shoulder"],
+"hip width":[24,23, "Bende:l_hip","Bende:r_hip"],
+"left thigh length":[23,25, "Bende:l_hip","Bende:l_knee"],
+"right thigh length":[24,26, "Bende:r_hip","Bende:r_knee"],
+"left lower leg length":[25,27, "Bende:l_knee","Bende:l_ankle"],
+"right lower leg length":[26,28, "Bende:r_knee","Bende:r_ankle"],
+"left foot length":[29,31, "Bende:l_heel","Bende:l_toe"],
+"right foot length":[30,32, "Bende:r_heel","Bende:r_toe"],
+}
+
 l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
 r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,14, "Bende:r_wrist","Bende:r_elbow"], False, time_resampled)
 
 
-def box_plotting(dataset):
-    for pair in dataset:
-        fig, ax = plt.subplots()
-        label_for_plots = []
-        plot_data = []
-        ax.set_title(pair)
-        for record in dataset[pair]:
-            label_for_plots.append(record)
-            plot_data.append(dataset[pair][record].copy())
-        ax.boxplot(plot_data, labels=label_for_plots, notch=True)
-        plt.ylabel("Kéz hosszának szórása, átlaga")
-        plt.xlabel("Adatsorok")
-        plt.show()
+# def box_plotting_for_pair(dataset):
+#     for pair in dataset:
+#         fig, ax = plt.subplots()
+#         label_for_plots = []
+#         plot_data = []
+#         ax.set_title(pair)
+#         for record in dataset[pair]:
+#             label_for_plots.append(record)
+#             plot_data.append(dataset[pair][record].copy())
+#         ax.boxplot(plot_data, labels=label_for_plots, notch=True)
+#         plt.ylabel("Kéz hosszának szórása, átlaga")
+#         plt.xlabel("Adatsorok")
+#         plt.show()
 
-# box_plotting(l_dist_mp_hands)
+# def box_plotting_for_all(dataset):
+#     plot_data = {}
+#     label_for_plots = ["OptiTrack","MediaPipe Pose","MediaPipe Pose World"]
+#     for pair in dataset:
+        
+#         for record in dataset[pair]:
+#             if record.find('ot_') > -1:
+#                 try:
+#                     for dists in dataset[pair][record]:
+#                         plot_data[label_for_plots[0]].append(dists.copy())
+#                 except KeyError:
+#                     plot_data[label_for_plots[0]] = dataset[pair][record].copy()
+#             elif record.find('pose_world_') > -1:
+#                 try:    
+#                     for dists in dataset[pair][record]:
+#                         plot_data[label_for_plots[1]].append(dists.copy())
+#                 except KeyError:
+#                     plot_data[label_for_plots[1]] = dataset[pair][record].copy()
+#             else:
+#                 try:
+#                     for dists in dataset[pair][record]:
+#                         plot_data[label_for_plots[2]].append(dists.copy())
+#                 except KeyError:
+#                     plot_data[label_for_plots[2]] = dataset[pair][record].copy()
+#     temp_data = []
+#     for mts in plot_data:
+#         temp_data.append(plot_data[mts])
+#     fig, ax = plt.subplots()
+#     ax.set_title("Szórási boxplot")
+#     bp_data = ax.boxplot(temp_data, labels=label_for_plots, notch=True)
+#     plt.ylabel("Kéz hosszának szórása, átlaga")
+#     plt.xlabel("Adatsorok")
+#     plt.show()
+#     return bp_data
+
+statistic_data = {}
+for name in rigid_bodies:
+    lengths = functions.distance_plotting_pair(data_points_resampled, rigid_bodies[name], False, time_resampled)
+    statistic_data[name] = functions.box_plotting_for_all(lengths, name)
+
+
 
 
 
@@ -124,13 +179,22 @@ ax.arrow3D(0,0,0,
            arrowstyle="-|>",
            linestyle='dashed')
 
-ax.arrow3D(data_points_resampled['csillag_1']['ot_csillag_1.csv']["Bende:r_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['y'][100],
-            data_points_resampled['csillag_1']['ot_csillag_1.csv']["Bende:l_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['y'][100],
+pair = 'csillag_1'
+rec = "ot_csillag_1.csv"
+p_1 = "Bende:r_wrist"
+p_2 = "Bende:l_wrist"
+
+d_x = data_points_resampled[pair][rec][p_1]['x'][100]-data_points_resampled[pair][rec][p_2]['x'][100]
+d_y = data_points_resampled[pair][rec][p_1]['y'][100]-data_points_resampled[pair][rec][p_2]['y'][100]
+d_z = data_points_resampled[pair][rec][p_1]['z'][100]-data_points_resampled[pair][rec][p_2]['z'][100]
+
+# ax.arrow3D(data_points_resampled[pair][rec][p_1]['x'][100],data_points_resampled[rec][p_1]['z'][100],(-1)*data_points_resampled[rec][p_1]['y'][100],
+#             data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[rec][p_2]['z'][100],(-1)*data_points_resampled[rec][p_2]['y'][100],
            
-           mutation_scale=20,
-           fc='red')
-ax.arrow3D(data_points_resampled['csillag_1']['ot_csillag_1.csv']["Bende:l_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:l_wrist"]['y'][100],
-           data_points_resampled['csillag_1']['ot_csillag_1.csv']["Bende:r_wrist"]['x'][100],data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['z'][100],(-1)*data_points_resampled['ot_csillag_1.csv']["Bende:r_wrist"]['y'][100],
+#            mutation_scale=20,
+#            fc='red')
+ax.arrow3D(data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[pair][rec][p_2]['z'][100],(-1)*data_points_resampled[pair][rec][p_2]['y'][100],
+           d_x,d_z,(-1)*d_y,
            mutation_scale=20,
            fc='red')
 ax.set_title('3D Arrows Demo')
@@ -140,7 +204,7 @@ ax.set_zlabel('z')
 
 import bodyPlot
 
-bodyPlot.plot_world_landmarks(ax,data_points_resampled['ot_csillag_1.csv'],100, False)
+bodyPlot.plot_world_landmarks(ax,data_points_resampled[pair][rec],100, False)
 
 fig.tight_layout()
 plt.show()
