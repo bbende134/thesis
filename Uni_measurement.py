@@ -101,63 +101,14 @@ rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
 "right foot length":[30,32, "Bende:r_heel","Bende:r_toe"],
 }
 
-l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
-r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,14, "Bende:r_wrist","Bende:r_elbow"], False, time_resampled)
+# l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
+# r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,14, "Bende:r_wrist","Bende:r_elbow"], False, time_resampled)
 
 
-# def box_plotting_for_pair(dataset):
-#     for pair in dataset:
-#         fig, ax = plt.subplots()
-#         label_for_plots = []
-#         plot_data = []
-#         ax.set_title(pair)
-#         for record in dataset[pair]:
-#             label_for_plots.append(record)
-#             plot_data.append(dataset[pair][record].copy())
-#         ax.boxplot(plot_data, labels=label_for_plots, notch=True)
-#         plt.ylabel("Kéz hosszának szórása, átlaga")
-#         plt.xlabel("Adatsorok")
-#         plt.show()
-
-# def box_plotting_for_all(dataset):
-#     plot_data = {}
-#     label_for_plots = ["OptiTrack","MediaPipe Pose","MediaPipe Pose World"]
-#     for pair in dataset:
-        
-#         for record in dataset[pair]:
-#             if record.find('ot_') > -1:
-#                 try:
-#                     for dists in dataset[pair][record]:
-#                         plot_data[label_for_plots[0]].append(dists.copy())
-#                 except KeyError:
-#                     plot_data[label_for_plots[0]] = dataset[pair][record].copy()
-#             elif record.find('pose_world_') > -1:
-#                 try:    
-#                     for dists in dataset[pair][record]:
-#                         plot_data[label_for_plots[1]].append(dists.copy())
-#                 except KeyError:
-#                     plot_data[label_for_plots[1]] = dataset[pair][record].copy()
-#             else:
-#                 try:
-#                     for dists in dataset[pair][record]:
-#                         plot_data[label_for_plots[2]].append(dists.copy())
-#                 except KeyError:
-#                     plot_data[label_for_plots[2]] = dataset[pair][record].copy()
-#     temp_data = []
-#     for mts in plot_data:
-#         temp_data.append(plot_data[mts])
-#     fig, ax = plt.subplots()
-#     ax.set_title("Szórási boxplot")
-#     bp_data = ax.boxplot(temp_data, labels=label_for_plots, notch=True)
-#     plt.ylabel("Kéz hosszának szórása, átlaga")
-#     plt.xlabel("Adatsorok")
-#     plt.show()
-#     return bp_data
-
-statistic_data = {}
-for name in rigid_bodies:
-    lengths = functions.distance_plotting_pair(data_points_resampled, rigid_bodies[name], False, time_resampled)
-    statistic_data[name] = functions.box_plotting_for_all(lengths, name)
+# statistic_data = {}
+# for name in rigid_bodies:
+#     lengths = functions.distance_plotting_pair(data_points_resampled, rigid_bodies[name], False, time_resampled)
+#     statistic_data[name] = functions.box_plotting_for_all(lengths, name)
 
 
 
@@ -173,16 +124,12 @@ setattr(Axes3D, 'arrow3D', functions._arrow3D)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.set_xlim(0,2)
-ax.arrow3D(0,0,0,
-           1,1,1,
-           mutation_scale=20,
-           arrowstyle="-|>",
-           linestyle='dashed')
 
-pair = 'csillag_1'
-rec = "ot_csillag_1.csv"
-p_1 = "Bende:r_wrist"
-p_2 = "Bende:l_wrist"
+
+pair = 'kartarogatas_1'
+rec = "mp_pose_world_kartarogatas_1.csv"
+p_1 = 29
+p_2 = 31
 
 d_x = data_points_resampled[pair][rec][p_1]['x'][100]-data_points_resampled[pair][rec][p_2]['x'][100]
 d_y = data_points_resampled[pair][rec][p_1]['y'][100]-data_points_resampled[pair][rec][p_2]['y'][100]
@@ -197,14 +144,14 @@ ax.arrow3D(data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled
            d_x,d_z,(-1)*d_y,
            mutation_scale=20,
            fc='red')
-ax.set_title('3D Arrows Demo')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
+ax.set_title('3D virtual skeleton')
+ax.set_xlabel('x [m]')
+ax.set_ylabel('y [m]')
+ax.set_zlabel('z [m]')
 
 import bodyPlot
 
-bodyPlot.plot_world_landmarks(ax,data_points_resampled[pair][rec],100, False)
+bodyPlot.plot_world_landmarks(ax,data_points_resampled[pair][rec],100, True)
 
 fig.tight_layout()
 plt.show()
