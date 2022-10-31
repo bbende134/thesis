@@ -301,22 +301,22 @@ def find_start_sync(dataset):
     for record in dataset:
         for i in range(150):
             temp[i] = dataset[record][i]
-        print(record)
+        
         if record.find("squat_1") > 0:
             start[record] = max(range(len(temp)), key=temp.__getitem__)
-            print("The max index: "+str(np.argmax(temp))+" with value: "+str(max(temp)))
+            #print("The max index: "+str(np.argmax(temp))+" with value: "+str(max(temp)))
         elif record.find("kitores") > 0:
             if record.find('ot_') > -1:
-                print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
+                #print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
                 start[record] = min(range(len(temp)), key=temp.__getitem__)
             else: 
                 mp_temp = []
                 for i in range(20):
                     mp_temp.append(dataset[record][i])
-                print("The min index: "+str(np.argmin(mp_temp))+" with value: "+str(min(mp_temp)))
+                #print("The min index: "+str(np.argmin(mp_temp))+" with value: "+str(min(mp_temp)))
                 start[record] = min(range(len(mp_temp)), key=mp_temp.__getitem__)
         else:
-            print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
+            #print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
             start[record] = min(range(len(temp)), key=temp.__getitem__)
     return start
 
@@ -429,7 +429,116 @@ def data_resample(dataset, time):
                 resampled_time[pair][record] = time[pair][record]
     return resampled_dataset, resampled_time
 
-#%%
+#%% Creating vector arrays
+
+def vector_array(dataset, body_part_1, body_part_2):
+    v_1 = {}
+    v_2 = {}
+    for pair in dataset:
+        v_1[pair] = {}
+        v_2[pair] = {}
+        for record in dataset[pair]:
+            v_1[pair][record] = []
+            v_2[pair][record] = []
+            if record.find('mp_') > -1:
+                for i,coord in enumerate(dataset[pair][record][body_part_1[0]]['x']):
+                    v_1[pair][record].append([None]*3)
+                    v_1[pair][record][i][0] = dataset[pair][record][body_part_1[0]]['x'][i]- dataset[pair][record][body_part_1[1]]['x'][i]
+                    v_1[pair][record][i][1] = dataset[pair][record][body_part_1[0]]['y'][i]- dataset[pair][record][body_part_1[1]]['y'][i]
+                    v_1[pair][record][i][2] = dataset[pair][record][body_part_1[0]]['z'][i]- dataset[pair][record][body_part_1[1]]['z'][i]
+
+                for i,coord in enumerate(dataset[pair][record][body_part_2[0]]['x']):
+                    v_2[pair][record].append([None]*3)
+                    v_2[pair][record][i][0] = dataset[pair][record][body_part_2[0]]['x'][i]- dataset[pair][record][body_part_2[1]]['x'][i]
+                    v_2[pair][record][i][1] = dataset[pair][record][body_part_2[0]]['y'][i]- dataset[pair][record][body_part_2[1]]['y'][i]
+                    v_2[pair][record][i][2] = dataset[pair][record][body_part_2[0]]['z'][i]- dataset[pair][record][body_part_2[1]]['z'][i]      
+            if record.find('ot_') > -1:
+                for i,coord in enumerate(dataset[pair][record][body_part_1[2]]['x']):
+                    v_1[pair][record].append([None]*3)
+                    v_1[pair][record][i][0] = dataset[pair][record][body_part_1[2]]['x'][i]- dataset[pair][record][body_part_1[3]]['x'][i]
+                    v_1[pair][record][i][1] = dataset[pair][record][body_part_1[2]]['y'][i]- dataset[pair][record][body_part_1[3]]['y'][i]
+                    v_1[pair][record][i][2] = dataset[pair][record][body_part_1[2]]['z'][i]- dataset[pair][record][body_part_1[3]]['z'][i]
+
+                for i,coord in enumerate(dataset[pair][record][body_part_2[2]]['x']):
+                    v_2[pair][record].append([None]*3)
+                    v_2[pair][record][i][0] = dataset[pair][record][body_part_2[2]]['x'][i]- dataset[pair][record][body_part_2[3]]['x'][i]
+                    v_2[pair][record][i][1] = dataset[pair][record][body_part_2[2]]['y'][i]- dataset[pair][record][body_part_2[3]]['y'][i]
+                    v_2[pair][record][i][2] = dataset[pair][record][body_part_2[2]]['z'][i]- dataset[pair][record][body_part_2[3]]['z'][i]      
+                        # d_x = data_points_resampled[pair][rec][p_1]['x'][100]-data_points_resampled[pair][rec][p_2]['x'][100]
+                        # d_y = data_points_resampled[pair][rec][p_1]['y'][100]-data_points_resampled[pair][rec][p_2]['y'][100]
+                        # d_z = data_points_resampled[pair][rec][p_1]['z'][100]-data_points_resampled[pair][rec][p_2]['z'][100]
+    return v_1, v_2
+
+#%% PLotting angles
+
+def angle_plotting_pair(v_1, v_2, plotting):
+    from matplotlib import pyplot as plt
+    mes_angle = {}
+    for pair in v_1:
+        mes_angle[pair] = {}
+        for record in v_1[pair]:
+            mes_angle[pair][record] = []
+            for i in range(len(v_1[pair][record])):
+                mes_angle[pair][record].append(np.rad2deg(angle_between(v_1[pair][record][i],v_2[pair][record][i])))
+    for pair in mes_angle:
+        temp_legend = []
+        for record in mes_angle[pair]:
+            temp_legend.append(record)
+            if plotting:
+                # plot_data_y.append(mes_dist[pair][record])
+                # plot_data_x.append(time[pair][record])
+                #plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                plt.plot(mes_angle[pair][record], '.-')
+                plt.xlabel("Mintavétel száma [-]")
+                plt.ylabel("Bezárt szög [°]")
+                # title = title.replace(" ", "_")
+                # title = title.replace(":", "_")
+                # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+        if plotting:
+            plt.legend(temp_legend)
+            title = pair + ": Bezárt szögek " 
+            plt.title(title)
+            plt.show()
+                
+    return mes_angle
+
+#%% Bp data
+# https://towardsdatascience.com/how-to-fetch-the-exact-values-from-a-boxplot-python-8b8a648fc813
+def bp_data(bp, name):
+    medians = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['medians']]
+    means = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['means']]
+    minimums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][::2]
+    maximums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][1::2]
+    q1 = [(round((min(item.get_ydata())*2), 3)/2) for item in bp['boxes']]
+    q3 = [(round((max(item.get_ydata())*2), 3)/2)  for item in bp['boxes']]
+    fliers = [item.get_ydata() for item in bp['fliers']]
+    lower_outliers = []
+    upper_outliers = []
+    for i in range(len(fliers)):
+        lower_outliers_by_box = []
+        upper_outliers_by_box = []
+        for outlier in fliers[i]:
+            if outlier < q1[i]:
+                lower_outliers_by_box.append((round(outlier*2, 3)/2))
+            else:
+                upper_outliers_by_box.append((round(outlier*2, 3)/2))
+        lower_outliers.append(lower_outliers_by_box)
+        upper_outliers.append(upper_outliers_by_box)    
+        
+    # New code
+    stats = [medians, means, minimums, maximums, q1, q3, lower_outliers, upper_outliers]
+    stats_names = ['Median', 'Mean', 'Minimum', 'Maximum', 'Q1', 'Q3', 'Lower outliers', 'Upper outliers'] # to be updated
+    file_name = "C:/dev/thesis/data/plots/Boxplotd" + name
+    with  open(file_name,'w') as f:
+        print(f'\033[1m{name}\033[0m')
+        f.write(name + ": \n")
+        for j in range(len(stats)):
+            print(f'{stats_names[j]}: {stats[j][i]}')
+            f.write(f'{stats_names[j]}: {stats[j][i]}')
+        f.write('\n')
+        print('\n')
+
+#%% 3D plotting
 import objects
 def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
     '''Add an 3d arrow to an `Axes3D` instance.'''
