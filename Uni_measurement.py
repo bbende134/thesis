@@ -6,6 +6,7 @@ Created on Tue Aug 16 09:58:39 2022
 """
 #%% find
 
+from cProfile import label
 import functions
 from matplotlib import pyplot as plt
 import numpy as np
@@ -112,79 +113,98 @@ rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
 
 
 
+#%% Calculate 3D angles
+
+vec_set_1, vec_set_2 = functions.vector_array(data_points_resampled, [13,15,"Bende:l_elbow","Bende:l_wrist"],[13,11,"Bende:l_elbow","Bende:l_shoulder"])
+
+angles = functions.angle_plotting_pair(vec_set_1,vec_set_2,True)
+
+pair = 'karhajlitas_1'
+
+angle_dev = []
+for i in range(len(angles[pair]['ot_karhajlitas_1.csv'])):
+    angle_dev.append(abs(angles[pair]['ot_karhajlitas_1.csv'][i]-angles[pair]['mp_pose_world_karhajlitas_1.csv'][i]))
 
 
+label_for_plots = [pair]
+fig, ax = plt.subplots()
+plt.title("Bezárt szögek: " + pair)
+bp_adatok = ax.boxplot(angle_dev, labels=label_for_plots, notch=True, showmeans=True)
+plt.ylabel("Bezárt szögek [°]")
+plt.xlabel("Adatsor")
+plt.show()
+functions.bp_data(bp_adatok, pair)
 
-#%%
+ #%%
 
-from mpl_toolkits.mplot3d.axes3d import Axes3D
+# from mpl_toolkits.mplot3d.axes3d import Axes3D
 
-setattr(Axes3D, 'arrow3D', functions._arrow3D)
+# setattr(Axes3D, 'arrow3D', functions._arrow3D)
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.set_xlim(0,2)
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.set_xlim(0,2)
 
 
-pair = 'kartarogatas_1'
-rec = "mp_pose_world_kartarogatas_1.csv"
-p_1 = 29
-p_2 = 31
+# pair = 'kartarogatas_1'
+# rec = "mp_pose_world_kartarogatas_1.csv"
+# p_1 = 29
+# p_2 = 31
 
-d_x = data_points_resampled[pair][rec][p_1]['x'][100]-data_points_resampled[pair][rec][p_2]['x'][100]
-d_y = data_points_resampled[pair][rec][p_1]['y'][100]-data_points_resampled[pair][rec][p_2]['y'][100]
-d_z = data_points_resampled[pair][rec][p_1]['z'][100]-data_points_resampled[pair][rec][p_2]['z'][100]
+# d_x = data_points_resampled[pair][rec][p_1]['x'][100]-data_points_resampled[pair][rec][p_2]['x'][100]
+# d_y = data_points_resampled[pair][rec][p_1]['y'][100]-data_points_resampled[pair][rec][p_2]['y'][100]
+# d_z = data_points_resampled[pair][rec][p_1]['z'][100]-data_points_resampled[pair][rec][p_2]['z'][100]
 
-# ax.arrow3D(data_points_resampled[pair][rec][p_1]['x'][100],data_points_resampled[rec][p_1]['z'][100],(-1)*data_points_resampled[rec][p_1]['y'][100],
-#             data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[rec][p_2]['z'][100],(-1)*data_points_resampled[rec][p_2]['y'][100],
+# # ax.arrow3D(data_points_resampled[pair][rec][p_1]['x'][100],data_points_resampled[rec][p_1]['z'][100],(-1)*data_points_resampled[rec][p_1]['y'][100],
+# #             data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[rec][p_2]['z'][100],(-1)*data_points_resampled[rec][p_2]['y'][100],
            
+# #            mutation_scale=20,
+# #            fc='red')
+# ax.arrow3D(data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[pair][rec][p_2]['z'][100],(-1)*data_points_resampled[pair][rec][p_2]['y'][100],
+#            d_x,d_z,(-1)*d_y,
 #            mutation_scale=20,
 #            fc='red')
-ax.arrow3D(data_points_resampled[pair][rec][p_2]['x'][100],data_points_resampled[pair][rec][p_2]['z'][100],(-1)*data_points_resampled[pair][rec][p_2]['y'][100],
-           d_x,d_z,(-1)*d_y,
-           mutation_scale=20,
-           fc='red')
-ax.set_title('3D virtual skeleton')
-ax.set_xlabel('x [m]')
-ax.set_ylabel('y [m]')
-ax.set_zlabel('z [m]')
+# ax.set_title('3D virtual skeleton')
+# ax.set_xlabel('x [m]')
+# ax.set_ylabel('y [m]')
+# ax.set_zlabel('z [m]')
 
-import bodyPlot
+# import bodyPlot
 
-bodyPlot.plot_world_landmarks(ax,data_points_resampled[pair][rec],100, True)
+# bodyPlot.plot_world_landmarks(ax,data_points_resampled[pair][rec],100, True)
 
-fig.tight_layout()
-plt.show()
+# fig.tight_layout()
+# plt.show()
 
 #%% 
-from dtaidistance import dtw
-from dtaidistance import dtw_visualisation as dtwvis
+# from dtaidistance import dtw
+# from dtaidistance import dtw_visualisation as dtwvis
 
-dist_mp_hands = functions.distance_plotting(data_points_resampled, [16,15], False, time_resampled)
-dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wrist","Bende:r_wrist"], False, time_resampled)
+# dist_mp_hands = functions.distance_plotting(data_points_resampled, [16,15], False, time_resampled)
+# dist_ot_hands = functions.distance_plotting(data_points_resampled, ["Bende:l_wrist","Bende:r_wrist"], False, time_resampled)
 
 
-s2 = list(dist_mp_hands['csillag_1']['mp_pose_world_csillag_1.csv'])
-s1 = list(dist_ot_hands['csillag_1']['ot_csillag_1.csv'])
+# s2 = list(dist_mp_hands['csillag_1']['mp_pose_world_csillag_1.csv'])
+# s1 = list(dist_ot_hands['csillag_1']['ot_csillag_1.csv'])
 
-# if len(s1) > len(s2):
-#     while len(s1) > len(s2):
-#         s1.pop()
-# elif len(s2) > len(s1):
-#     while len(s2) > len(s1):
-#         s2.pop()
-for i in range(60):
-    s1.pop()
+# # if len(s1) > len(s2):
+# #     while len(s1) > len(s2):
+# #         s1.pop()
+# # elif len(s2) > len(s1):
+# #     while len(s2) > len(s1):
+# #         s2.pop()
+# for i in range(60):
+#     s1.pop()
 
-for i in range(20):
-    s1.pop(0)
-    s2.pop(0)
+# for i in range(20):
+#     s1.pop(0)
+#     s2.pop(0)
 
-path = dtw.warping_path(s1, s2)
-dtwvis.plot_warping(s1, s2, path, filename="warp.png")
-d, paths = dtw.warping_paths(s1, s2, window=100, psi=2)
-best_path = dtw.best_path(paths)
-dtwvis.plot_warpingpaths(s1, s2, paths, best_path)
+# path = dtw.warping_path(s1, s2)
+# dtwvis.plot_warping(s1, s2, path, filename="warp.png")
+# d, paths = dtw.warping_paths(s1, s2, window=100, psi=2)
+# best_path = dtw.best_path(paths)
+# dtwvis.plot_warpingpaths(s1, s2, paths, best_path)
 # %%
 
 # %%
