@@ -220,9 +220,11 @@ def distance_plotting(dataset, points_between, plotting, time=None):
             mes_dist[record] = dists
             if plotting and time:
                 
-                plt.plot(time[record], dists, '.-')
+                plt.plot(dists, '.-')
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
+                plt.xlabel("Mintavétel száma [-]")
+                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 title = title.replace(" ", "_")
                 title = title.replace(":", "_")
                 plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")

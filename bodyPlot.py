@@ -1,11 +1,3 @@
-# import matplotlib.colors as mcolors
-
-
-# by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
-#                     name)
-#                 for name, color in mcolors.TABLEAU_COLORS.items())
-# names = [name for hsv, name in by_hsv]
-# print(by_hsv)
 #%% 
 
 def plot_world_landmarks(
