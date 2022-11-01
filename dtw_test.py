@@ -97,8 +97,8 @@ plt.boxplot(data)
 plt.show()
 # %%
 
-import Uni_measurement
+import uniMes
 #%%
-print(len(Uni_measurement.data_points_resampled))
+print(len(uniMes.data_points_resampled))
 
 # %%
