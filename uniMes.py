@@ -73,11 +73,13 @@ data_points_synced, time_synced = functions.mod_data(data_points,time_data, star
 #%% Pairing data
 paired_data_points, paired_time = functions.create_pairs(data_points_synced,time_synced)
 
-dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], True, paired_time)
+dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, paired_time)
 
 #%% Cutting for same length
 
 cutted_data_points, time_cutted = functions.manual_cut(paired_data_points,paired_time)
+
+dist_ot_hands = functions.distance_plotting_pair(cutted_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, cutted_data_points)
 
 # %% Resampling phase 
 
@@ -105,7 +107,7 @@ rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
 }
 
 # l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
-r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], True, time_resampled)
+r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_resampled)
 
 
 # statistic_data = {}

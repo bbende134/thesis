@@ -277,12 +277,13 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
             if plotting and time[pair]:
                 # plot_data_y.append(mes_dist[pair][record])
                 # plot_data_x.append(time[pair][record])
-                #plt.plot(time[pair][record], mes_dist[pair][record], '.-')
-                plt.plot(mes_dist[pair][record], '.-')
+                plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                #plt.plot(mes_dist[pair][record], '.-')
                 title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
                 plt.xlabel("Mintavétel száma [-]")
-                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
+                plt.xlabel("Idő [s]")
+                #plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 # title = title.replace(" ", "_")
                 # title = title.replace(":", "_")
                 # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
@@ -530,15 +531,17 @@ def bp_data(bp, name):
     # New code
     stats = [medians, means, minimums, maximums, q1, q3, lower_outliers, upper_outliers]
     stats_names = ['Median', 'Mean', 'Minimum', 'Maximum', 'Q1', 'Q3', 'Lower outliers', 'Upper outliers'] # to be updated
-    file_name = "C:/dev/thesis/data/plots/Boxplotd" + name
+    categories = [keys for keys in bp]
+    file_name = "C:/dev/thesis/data/plots/Boxplotd/" + name
     with  open(file_name,'w') as f:
         print(f'\033[1m{name}\033[0m')
         f.write(name + ": \n")
         for j in range(len(stats)):
             print(f'{stats_names[j]}: {stats[j][i]}')
-            f.write(f'{stats_names[j]}: {stats[j][i]}')
+            f.write(f'{stats_names[j]}: {stats[j][i]} \n')
         f.write('\n')
         print('\n')
+        f.close()
 
 #%% 3D plotting
 import objects
@@ -617,13 +620,49 @@ def box_plotting_for_all(dataset, title_name = None):
         title_name = title_name.replace(":", "_")
     else:
         ax.set_title("Szórási boxplot")
-    bp_data = ax.boxplot(temp_data, labels=label_for_plots, notch=True)
+    bp = ax.boxplot(temp_data, labels=label_for_plots, notch=True, showmeans=True)
     plt.ylabel("Length")
     plt.xlabel("Datasets")
 
-    f = "C:/dev/thesis/data/plots/" + title_name + ".svg"
+    f = "C:/dev/thesis/data/plots/BoxPlotd/" + title_name + ".svg"
     plt.savefig(f, format='svg')
     plt.show()
+    medians = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['medians']]
+    means = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['means']]
+    minimums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][::2]
+    maximums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][1::2]
+    q1 = [(round((min(item.get_ydata())*2), 3)/2) for item in bp['boxes']]
+    q3 = [(round((max(item.get_ydata())*2), 3)/2)  for item in bp['boxes']]
+    fliers = [item.get_ydata() for item in bp['fliers']]
+    lower_outliers = []
+    upper_outliers = []
+    for i in range(len(fliers)):
+        lower_outliers_by_box = []
+        upper_outliers_by_box = []
+        for outlier in fliers[i]:
+            if outlier < q1[i]:
+                lower_outliers_by_box.append((round(outlier*2, 3)/2))
+            else:
+                upper_outliers_by_box.append((round(outlier*2, 3)/2))
+        lower_outliers.append(lower_outliers_by_box)
+        upper_outliers.append(upper_outliers_by_box)  
+        
+    # New code
+    stats = [medians, means, minimums, maximums, q1, q3, lower_outliers, upper_outliers]
+    stats_names = ['Median', 'Mean', 'Minimum', 'Maximum', 'Q1', 'Q3', 'Lower outliers', 'Upper outliers']
+# to be updated
+    file_name = "C:/dev/thesis/data/plots/Boxplotd/" + title_name
+    with  open(file_name,'w') as f:
+        for i,name in enumerate(label_for_plots):
+            print(f'\033[1m{name}\033[0m')
+            f.write(name + ": \n")
+            for j in range(len(stats)):
+                print(f'{stats_names[j]}: {stats[j][i]}')
+                f.write(f'{stats_names[j]}: {stats[j][i]} \n')
+            f.write('\n')
+            print('\n')
+        f.close()
+
     return bp_data
 #%% landmark to array
 

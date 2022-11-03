@@ -15,7 +15,7 @@ rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
 }
 
 # l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
-r_dist_mp_hands = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_resampled)
+r_dist_mp_hands = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies['left hand forearm'], False, uniMes.time_resampled)
 
 
 statistic_data = {}
