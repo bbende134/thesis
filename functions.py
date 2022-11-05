@@ -239,7 +239,6 @@ def distance_plotting(dataset, points_between, plotting, time=None):
 def distance_plotting_pair(dataset, points_between, plotting, time=None):
     from matplotlib import pyplot as plt
     mes_dist = {}
-    all_dists = {}
     for pair in dataset:
         mes_dist[pair] = {}
         for record in dataset[pair]:

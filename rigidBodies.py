@@ -21,4 +21,5 @@ r_dist_mp_hands = uniMes.functions.distance_plotting_pair(uniMes.data_points_res
 statistic_data = {}
 for name in rigid_bodies:
     lengths = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies[name], False, uniMes.time_resampled)
+    
     statistic_data[name] = uniMes.functions.box_plotting_for_all(lengths, name)
