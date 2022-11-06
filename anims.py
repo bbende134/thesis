@@ -1,91 +1,90 @@
-# -*- coding: utf-8 -*-
 
 #%%
-import matplotlib.pyplot as pyplot
-from numpy import *
-from numpy import linalg
-from mpl_toolkits.mplot3d import Axes3D
+# import matplotlib.pyplot as pyplot
+# from numpy import *
+# from numpy import linalg
+# from mpl_toolkits.mplot3d import Axes3D
 
-x       = array([0, 0, 0, 0, 50, 50, 50, 50])
-y       = array([50,50,50,50,50,50,50,50])
-z       = array([12.5,37.5,62.5,87.5,25,50,75,0])
+# x       = array([0, 0, 0, 0, 50, 50, 50, 50])
+# y       = array([50,50,50,50,50,50,50,50])
+# z       = array([12.5,37.5,62.5,87.5,25,50,75,0])
 
-data = concatenate((x[:,newaxis],y[:,newaxis],z[:,newaxis]), axis=1)
+# data = concatenate((x[:,newaxis],y[:,newaxis],z[:,newaxis]), axis=1)
 
-center = data.mean(axis=0)
+# center = data.mean(axis=0)
 
-distances = empty((0))
-for row in data:
-    distances = append(distances, linalg.norm(row - center))
+# distances = empty((0))
+# for row in data:
+#     distances = append(distances, linalg.norm(row - center))
 
-vertices = distances.argsort()[-4:]
-Vertices_reorder = [vertices[0], vertices[2], vertices[1], vertices[3], vertices[0]]
+# vertices = distances.argsort()[-4:]
+# Vertices_reorder = [vertices[0], vertices[2], vertices[1], vertices[3], vertices[0]]
 
-# plot:
-fig = pyplot.figure()
-ax  = fig.add_subplot(111, projection = '3d')
+# # plot:
+# fig = pyplot.figure()
+# ax  = fig.add_subplot(111, projection = '3d')
 
-ax.set_xlim(0,100)
-ax.set_ylim(0,100)
-ax.set_zlim(0,100)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+# ax.set_xlim(0,100)
+# ax.set_ylim(0,100)
+# ax.set_zlim(0,100)
+# ax.set_xlabel('X')
+# ax.set_ylabel('Y')
+# ax.set_zlabel('Z')
 
-#ax.view_init(elev=90, azim=90)
-ax.scatter(x, y, z, zdir='z', s=20, c='g')
-ax.plot(x[Vertices_reorder], y[Vertices_reorder], z[Vertices_reorder])
-
-
-#%%
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.axes3d import Axes3D
-import functions
+# #ax.view_init(elev=90, azim=90)
+# ax.scatter(x, y, z, zdir='z', s=20, c='g')
+# ax.plot(x[Vertices_reorder], y[Vertices_reorder], z[Vertices_reorder])
 
 
-setattr(Axes3D, 'arrow3D', functions._arrow3D)
+# #%%
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d.axes3d import Axes3D
+# import functions
 
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.set_xlim(0,2)
-ax.arrow3D(0,0,0,
-           1,1,1,
-           mutation_scale=20,
-           arrowstyle="-|>",
-           linestyle='dashed')
-ax.arrow3D(1,0,0,
-           1,1,1,
-           mutation_scale=20,
-           fc='red')
-ax.set_title('3D Arrows Demo')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
-fig.tight_layout()
+# setattr(Axes3D, 'arrow3D', functions._arrow3D)
+
+
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.set_xlim(0,2)
+# ax.arrow3D(0,0,0,
+#            1,1,1,
+#            mutation_scale=20,
+#            arrowstyle="-|>",
+#            linestyle='dashed')
+# ax.arrow3D(1,0,0,
+#            1,1,1,
+#            mutation_scale=20,
+#            fc='red')
+# ax.set_title('3D Arrows Demo')
+# ax.set_xlabel('x')
+# ax.set_ylabel('y')
+# ax.set_zlabel('z')
+# fig.tight_layout()
 
 
 
 
-#%%
+# #%%
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+# import numpy as np
 
-soa = np.array([[0, 0, 1, 1, -2, 0], [0, 0, 2, 1, 1, 0],
-                [0, 0, 3, 2, 1, 0], [0, 0, 4, 0.5, 0.7, 0]])
+# soa = np.array([[0, 0, 1, 1, -2, 0], [0, 0, 2, 1, 1, 0],
+#                 [0, 0, 3, 2, 1, 0], [0, 0, 4, 0.5, 0.7, 0]])
 
-X, Y, Z, U, V, W = zip(*soa)
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.quiver(X, Y, Z, U, V, W)
-ax.set_xlim([-1, 0.5])
-ax.set_ylim([-1, 1.5])
-ax.set_zlim([-1, 8])
-plt.show()
+# X, Y, Z, U, V, W = zip(*soa)
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.quiver(X, Y, Z, U, V, W)
+# ax.set_xlim([-1, 0.5])
+# ax.set_ylim([-1, 1.5])
+# ax.set_zlim([-1, 8])
+# plt.show()
 
-#%%
+# #%%
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -120,7 +119,7 @@ ax.set_ylabel('Y')
 ax.set_zlim3d([0.0, 10.0])
 ax.set_zlabel('Z')
 
-ani = animation.FuncAnimation(fig, update, N, fargs=(data, line), interval=10000/N, blit=False)
+ani = animation.FuncAnimation(fig, update, N, fargs=(data, line), interval=10000/N, blit=False, )
 #ani.save('matplot003.gif', writer='imagemagick')
 plt.show()
 
