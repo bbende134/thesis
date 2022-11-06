@@ -2,10 +2,10 @@ import uniMes
 import matplotlib.pyplot as plt
 
 
-vec_set_1, vec_set_2 = uniMes.functions.vector_array(uniMes.data_points_resampled, [11,13,"Bende:l_shoulder","Bende:l_elbow"],[12,14,"Bende:r_shoulder","Bende:r_elbow"])
+vec_set_1, vec_set_2 = uniMes.functions.vector_array(uniMes.data_points_resampled, [16,14,"Bende:r_wrist","Bende:r_elbow"],[12,14,"Bende:r_shoulder","Bende:r_elbow"])
 angles = uniMes.functions.angle_plotting_pair(vec_set_1,vec_set_2,True)
 
-pair = 'csillag_1'
+pair = 'kitores_bal_2'
 ot = 'ot_'+pair+'.csv'
 mp_w = 'mp_pose_world_'+pair+'.csv'
 mp = 'mp_pose_'+pair+'.csv'

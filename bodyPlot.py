@@ -36,10 +36,10 @@ def plot_world_landmarks(
         
         ax.set_xlim3d(1, 3)
         ax.set_ylim3d(-0.5, 1.5)
-        ax.set_zlim3d(-2, 0)
+        ax.set_zlim3d(0, 2)
 
         for joint in joints:
-            landmark_point[joint] = [0.6, (joints[joint]['x'][frame], joints[joint]['y'][frame], joints[joint]['z'][frame])]
+            landmark_point[joint] = [0.6, (joints[joint]['x'][frame], (-1)*joints[joint]['y'][frame], joints[joint]['z'][frame])]
 
     # face
     face_x, face_y, face_z = [], [], []
