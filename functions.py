@@ -221,7 +221,7 @@ def distance_plotting(dataset, points_between, plotting, time=None):
             if plotting and time:
                 
                 plt.plot(dists, '.-')
-                title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
+                title = "("+ record + ")" + " Távolság " + str(name_r) + " és " + str(name_l) + " markerek között"
                 plt.title(title)
                 plt.xlabel("Mintavétel száma [-]")
                 plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
@@ -278,14 +278,13 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
                 # plot_data_x.append(time[pair][record])
                 plt.plot(time[pair][record], mes_dist[pair][record], '.-')
                 #plt.plot(mes_dist[pair][record], '.-')
-                title = record + ". Distance betweeen " + str(name_r) + " and " + str(name_l)
+                title = "("+ pair + ")" + "Összesített " + str(name_r) + " és " + str(name_l) + " markerek között"
                 plt.title(title)
-                plt.xlabel("Mintavétel száma [-]")
+                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 plt.xlabel("Idő [s]")
-                #plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
-                # title = title.replace(" ", "_")
-                # title = title.replace(":", "_")
-                # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+                title = title.replace(" ", "_")
+                title = title.replace(":", "_")
+                plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 
             elif plotting:
                 print("no time data")

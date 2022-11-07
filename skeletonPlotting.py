@@ -15,8 +15,8 @@ setattr(Axes3D, 'arrow3D', uniMes.functions._arrow3D)
 
 pair = 'kartarogatas_1'
 rec = "mp_pose_world_kartarogatas_1.csv"
-p_1 = 15
-p_2 = 'Bende:r_hip'
+p_1 = [15,13,11,23,25,27]
+p_2 = [13,11,12,24,23,25]
 t = 50
 new_t = np.linspace(0,2,len(uniMes.time_resampled[pair][rec]))
 # for k in range(49):
@@ -74,24 +74,24 @@ for k in range(49):
     ax = fig.add_subplot(111, projection='3d')
 
     bodyPlot.plot_world_landmarks(ax,uniMes.data_points_resampled[pair][rec],t*(k+1), True)
-    for joint in uniMes.data_points_resampled[pair][rec]:
-        d_x = uniMes.data_points_resampled[pair][rec][joint]['x'][t*(k+1)]
-        d_y = uniMes.data_points_resampled[pair][rec][joint]['y'][t*(k+1)]
-        d_z = uniMes.data_points_resampled[pair][rec][joint]['z'][t*(k+1)]
-    #     d_x = uniMes.data_points_resampled[pair][rec][p_1]['x'][t*(k+1)]
-    #     d_y = uniMes.data_points_resampled[pair][rec][p_1]['y'][t*(k+1)]
-    #     d_z = uniMes.data_points_resampled[pair][rec][p_1]['z'][t*(k+1)]
-        ax.arrow3D(0,0,0,
+    for i in range(len(p_1)):
+        # d_x = uniMes.data_points_resampled[pair][rec][joint]['x'][t*(k+1)]
+        # d_y = uniMes.data_points_resampled[pair][rec][joint]['y'][t*(k+1)]
+        # d_z = uniMes.data_points_resampled[pair][rec][joint]['z'][t*(k+1)]
+        d_x = uniMes.data_points_resampled[pair][rec][p_1[i]]['x'][t*(k+1)]-uniMes.data_points_resampled[pair][rec][p_2[i]]['x'][t*(k+1)]
+        d_y = uniMes.data_points_resampled[pair][rec][p_1[i]]['y'][t*(k+1)]-uniMes.data_points_resampled[pair][rec][p_2[i]]['y'][t*(k+1)]
+        d_z = uniMes.data_points_resampled[pair][rec][p_1[i]]['z'][t*(k+1)]-uniMes.data_points_resampled[pair][rec][p_2[i]]['z'][t*(k+1)]
+        ax.arrow3D(uniMes.data_points_resampled[pair][rec][p_2[i]]['x'][t*(k+1)],uniMes.data_points_resampled[pair][rec][p_2[i]]['z'][t*(k+1)],(-1)*uniMes.data_points_resampled[pair][rec][p_2[i]]['y'][t*(k+1)],
                 d_x,d_z,(-1)*d_y,
-                mutation_scale=10,
+                mutation_scale=20,
                 fc='red')
-
+    ax.set_title('3D virtuális csontváz')
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_zlabel('z [m]')
     fig.tight_layout()
     plt.show()
-ax.arrow3D(uniMes.data_points_resampled[pair][rec][p_2]['x'][100],uniMes.data_points_resampled[pair][rec][p_2]['z'][100],(-1)*uniMes.data_points_resampled[pair][rec][p_2]['y'][100],
-           d_x,d_z,(-1)*d_y,
-           mutation_scale=20,
-           fc='red')
+
 # p_1 = 'Bende:r_knee'
 # p_2 = 'Bende:r_hip'
 
