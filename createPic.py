@@ -17,12 +17,12 @@ def create_pic(dataset):
                     for j,coordinates in enumerate(dataset[pair][record][joint]):
                         
                         pics[pair] = np.vstack([pics[pair],dataset[pair][record][joint][coordinates]])
-        maxes[pair] = np.amax(pics[pair])
-        mins[pair] = np.amin(pics[pair])
-        deviations[pair] = maxes[pair] - mins[pair]
-        pics[pair] -= mins[pair]
-        pics[pair] *= (255/deviations[pair])
-        pics[pair] = pics[pair].astype(np.uint8)
+                maxes[pair] = np.amax(pics[pair])
+                mins[pair] = np.amin(pics[pair])
+                deviations[pair] = maxes[pair] - mins[pair]
+                pics[pair] -= mins[pair]
+                pics[pair] *= (255/deviations[pair])
+                pics[pair] = pics[pair].astype(np.uint8)
 
     return pics
 
@@ -32,7 +32,7 @@ from matplotlib import pyplot as plt
 for pair in picturing:
     plt.imshow(picturing[pair])
     plt.title(pair)
-    plt.xlabel("Mintavételek")
-    plt.ylabel("Virtuális izületek, és azok x,y,z koordinátái sorrendben")
+    plt.xlabel("Mintavételek [-]")
+    plt.ylabel("Virtuális izületek, és azok x,y,z koordinátái sorrendben [-]")
     plt.show()
 

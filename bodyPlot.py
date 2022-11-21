@@ -17,9 +17,12 @@ def plot_world_landmarks(
         shoulder_index_list = [11, 12]
         waist_index_list = [23, 24]
         landmark_point = []
-        ax.set_xlim3d(-1, 1)
-        ax.set_ylim3d(-1, 1)
-        ax.set_zlim3d(-1, 1)
+        # ax.set_xlim3d(0.2, 1.0)
+        # ax.set_ylim3d(-0.8, 0.0)
+        # ax.set_zlim3d(-0.6, 0.2)
+        ax.set_xlim3d(-0.75, 0.75)
+        ax.set_ylim3d(-0.75, 0.75)
+        ax.set_zlim3d(-0.75, 0.75)
 
         for joint in joints:
             landmark_point.append(
@@ -106,7 +109,7 @@ def plot_world_landmarks(
     ax.plot(right_body_side_x, right_body_side_y, right_body_side_z)
     ax.plot(left_body_side_x, left_body_side_y, left_body_side_z)
     ax.plot(shoulder_x, shoulder_y, shoulder_z)
-    ax.plot(waist_x, waist_y, waist_z)
+    
     
 
-    return
+    return ax.plot(waist_x, waist_y, waist_z)

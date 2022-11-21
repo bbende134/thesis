@@ -79,7 +79,7 @@ dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Be
 
 cutted_data_points,time_cutted  = functions.manual_cut(paired_data_points,paired_time)
 
-dist_ot_hands = functions.distance_plotting_pair(cutted_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], True, time_cutted)
+dist_ot_hands = functions.distance_plotting_pair(cutted_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_cutted)
 
 # %% Resampling phase 
 

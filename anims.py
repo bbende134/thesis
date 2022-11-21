@@ -1,6 +1,141 @@
 
+import numpy as np
+from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.animation
+import pandas as pd
+
+import uniMes
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+import bodyPlot
+
+setattr(Axes3D, 'arrow3D', uniMes.functions._arrow3D)
+
+def update_graph(num):
+    pair = 'kartarogatas_1'
+    rec = "mp_pose_world_kartarogatas_1.csv"
+    new_t = np.linspace(0,2,len(uniMes.time_resampled[pair][rec]))
+    num += 50
+    p_1 = 15
+    ax.clear()
+    bodyPlot.plot_world_landmarks(ax,uniMes.data_points_resampled[pair][rec],num, True)
+    # for points in uniMes.data_points_resampled[pair][rec]:
+    #     graph.set_data (uniMes.data_points_resampled[pair][rec][points]['x'][num],
+    #     uniMes.data_points_resampled[pair][rec][points]['x'][num])
+    #     graph.set_3d_properties(data.z)
+    ax.view_init(elev=90., azim=0)
+    temp_t = []
+    temp_x = []
+    temp_y = []
+    temp_z = []
+    for i in range(num):
+        
+        temp_x.append(uniMes.data_points_resampled[pair][rec][p_1]['x'][num-i])
+        temp_y.append(uniMes.data_points_resampled[pair][rec][p_1]['z'][num-i])
+        temp_z.append(-1*(uniMes.data_points_resampled[pair][rec][p_1]['y'][num-i]))
+        temp_t.append(new_t[i])
+    temp_t_x = []
+    for j in range(num):
+        temp_t_x.append(temp_t[j] -uniMes.data_points_resampled[pair][rec][p_1]['y'][num])
+
+    ax.plot(temp_x,temp_t_x , zs=uniMes.data_points_resampled[pair][rec][p_1]['z'][num], zdir='y', label='curve in (x, y)')
+    temp_t_y = []
+    for j in range(num):
+        temp_t_y.append(temp_t[j]+uniMes.data_points_resampled[pair][rec][p_1]['x'][num])
+    ax.plot(temp_t_y,temp_y , zs=-1*uniMes.data_points_resampled[pair][rec][p_1]['y'][num], zdir='z', label='curve in (x, y)')
+    for j in range(num):
+        temp_t[j] *= (-1)
+        temp_t[j] += uniMes.data_points_resampled[pair][rec][p_1]['z'][num]
+    ax.plot(temp_t,temp_z , zs=uniMes.data_points_resampled[pair][rec][p_1]['x'][num], zdir='x', label='curve in (x, y)')
+
+    d_x = uniMes.data_points_resampled[pair][rec][p_1]['x'][num]
+    d_y = uniMes.data_points_resampled[pair][rec][p_1]['y'][num]
+    d_z = uniMes.data_points_resampled[pair][rec][p_1]['z'][num]
+    ax.arrow3D(0,0,0,
+        d_x,d_z,(-1)*d_y,
+        mutation_scale=20,
+        fc='red')
+    title.set_text('3D Test, time={}'.format(num))
+    return title, graph, 
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+title = ax.set_title('3D Test')
+
+
+ax.set_xlim3d(-1, 1)
+ax.set_ylim3d(-1, 1)
+ax.set_zlim3d(-1, 1)
+
+pair = 'kartarogatas_1'
+rec = "mp_pose_world_kartarogatas_1.csv"
+
+graph, = bodyPlot.plot_world_landmarks(ax,uniMes.data_points_resampled[pair][rec],50, True)
+
+
+
+ani = matplotlib.animation.FuncAnimation(fig, update_graph 
+                               , interval=((1/120)),save_count=300)
+
+
+f = r"c://dev/thesis/data/plots/animation_vect_traj_fel.gif" 
+writergif = matplotlib.animation.PillowWriter(fps=240) 
+ani.save(f, writer=writergif)
+
+
+
+plt.show()
+
+#%% Csak a csontváz
+
+def update_graph(num):
+    pair = 'karhajlitas_1'
+    rec = "mp_pose_world_karhajlitas_1.csv"
+    new_t = np.linspace(0,2,len(uniMes.time_resampled[pair][rec]))
+    num += 50
+    p_1 = "Bende:l_wrist"
+    ax.clear()
+    bodyPlot.plot_world_landmarks(ax,uniMes.data_points_resampled[pair][rec],num, True)
+    # for points in uniMes.data_points_resampled[pair][rec]:
+    #     graph.set_data (uniMes.data_points_resampled[pair][rec][points]['x'][num],
+    #     uniMes.data_points_resampled[pair][rec][points]['x'][num])
+    #     graph.set_3d_properties(data.z)
+    ax.view_init(elev=0., azim=-90)
+    title.set_text('3D Test, time={}'.format(num))
+    return title, graph, 
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+title = ax.set_title('3D Test')
+
+
+ax.set_xlim3d(-1, 1)
+ax.set_ylim3d(-1, 1)
+ax.set_zlim3d(-1, 1)
+
+pair = 'karhajlitas_1'
+rec = "mp_pose_world_karhajlitas_1.csv"
+
+graph, = bodyPlot.plot_world_landmarks(ax,uniMes.data_points_resampled[pair][rec],50, True)
+
+
+
+ani = matplotlib.animation.FuncAnimation(fig, update_graph 
+                               , interval=((1/120)),save_count=300)
+
+
+f = r"c://dev/thesis/data/plots/animation_karhajlitas.gif" 
+writergif = matplotlib.animation.PillowWriter(fps=240) 
+ani.save(f, writer=writergif)
+
+
+
+plt.show()
+
 #%%
-# import matplotlib.pyplot as pyplot
+# import matplotlib.pyplot as plt
 # from numpy import *
 # from numpy import linalg
 # from mpl_toolkits.mplot3d import Axes3D
@@ -21,7 +156,7 @@
 # Vertices_reorder = [vertices[0], vertices[2], vertices[1], vertices[3], vertices[0]]
 
 # # plot:
-# fig = pyplot.figure()
+# fig = plt.figure()
 # ax  = fig.add_subplot(111, projection = '3d')
 
 # ax.set_xlim(0,100)
@@ -34,7 +169,7 @@
 # #ax.view_init(elev=90, azim=90)
 # ax.scatter(x, y, z, zdir='z', s=20, c='g')
 # ax.plot(x[Vertices_reorder], y[Vertices_reorder], z[Vertices_reorder])
-
+# plt.show()
 
 # #%%
 # import matplotlib.pyplot as plt
@@ -84,7 +219,7 @@
 # ax.set_zlim([-1, 8])
 # plt.show()
 
-# #%%
+#%%
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -107,6 +242,8 @@ def update(num, data, line):
 N = 100
 data = np.array(list(gen(N)))
 data = data.T
+print(data[:2, :10])
+print(data[2, :10])
 line, = ax.plot(data[0, 0:1], data[1, 0:1], data[2, 0:1])
 
 # Setting the axes properties
@@ -226,7 +363,7 @@ plt.show()
 #     im.set_array(image_clock)
 
 # ani = animation.FuncAnimation(fig, animate, frames=60, interval=100)
-plt.show()
+# plt.show()
 # %%
 
 

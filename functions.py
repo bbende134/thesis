@@ -80,43 +80,6 @@ def normalize(arr, t_min, t_max):
         norm_arr.append(temp)
     return norm_arr
 
-#%% Reading and Evaluating videos, and creating data from it
-
-# def video_evaluation(vid, files, path):
-
-#     mp_pose = mp.solutions.pose
-#     pose=mp_pose.Pose()
-    
-#     for i in range(len(files)):
-#         names = path + files[i]
-#         print(names)
-#         cap = cv2.VideoCapture(names)
-#         while True:
-#             success, img = cap.read()
-
-#             if success == True:
-
-#                 i_h, i_w, _  = img.shape
-
-#                 imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-#                 results=pose.process(imgRGB)
-
-#                 if results.pose_world_landmarks:
-
-#                     if vid[i] == None:
-#                         vid[i] = objects.Video(results.pose_world_landmarks.landmark, files[i])
-#                     else:
-#                         vid[i].add_element(results.pose_world_landmarks.landmark)
-                        
-#             else:
-#                 print('Cannot read video')
-#                 break
-            
-#         print('Video evaluated: \n', files[i])
-    
-#     return vid
-
 #%% Reading dataset from csv file
 
 def read_dataset(file, path):
@@ -227,7 +190,7 @@ def distance_plotting(dataset, points_between, plotting, time=None):
                 plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 title = title.replace(" ", "_")
                 title = title.replace(":", "_")
-                plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+                plt.savefig("C:/dev/C:/dev/thesis/data/plots/"+title+".svg")
                 plt.show()
             elif plotting:
                 print("no time data")
