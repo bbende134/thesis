@@ -67,6 +67,7 @@ dist_hands = Merge(dist_mp_hands, dist_ot_hands)
 #%% Data sync
 
 start_sync_datasample = functions.find_start_sync(dist_hands)
+start_sync_datasample = functions.find_end_sync(dist_hands)
 
 data_points_synced, time_synced = functions.mod_data(data_points,time_data, start_sync_datasample)
 
@@ -77,13 +78,15 @@ dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Be
 
 #%% Cutting for same length
 
-cutted_data_points,time_cutted  = functions.manual_cut(paired_data_points,paired_time)
+# cutted_data_points,time_cutted  = functions.manual_cut(paired_data_points,paired_time)
 
-dist_ot_hands = functions.distance_plotting_pair(cutted_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_cutted)
+dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, paired_time)
 
 # %% Resampling phase 
 
-data_points_resampled, time_resampled = functions.data_resample(cutted_data_points, time_cutted)
+#data_points_resampled, time_resampled = functions.data_resample(cutted_data_points, time_cutted)
+
+data_points_resampled, time_resampled = functions.data_resample_2(paired_data_points, paired_time)
 
 # %%
 
@@ -92,22 +95,8 @@ data_points_resampled, time_resampled = functions.data_resample(cutted_data_poin
 
 #%% Box plotting of rigid bodies
 
-rigid_bodies = {"left hand forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
-"right hand forearm":[16,14, "Bende:r_wrist","Bende:r_elbow"],
-"left hand upper arm":[11,13, "Bende:l_elbow","Bende:l_shoulder"],
-"right hand upper arm":[12,14, "Bende:r_elbow","Bende:r_shoulder"],
-"shoulder width":[12,11, "Bende:l_shoulder","Bende:r_shoulder"],
-"hip width":[24,23, "Bende:l_hip","Bende:r_hip"],
-"left thigh length":[23,25, "Bende:l_hip","Bende:l_knee"],
-"right thigh length":[24,26, "Bende:r_hip","Bende:r_knee"],
-"left lower leg length":[25,27, "Bende:l_knee","Bende:l_ankle"],
-"right lower leg length":[26,28, "Bende:r_knee","Bende:r_ankle"],
-"left foot length":[29,31, "Bende:l_heel","Bende:l_toe"],
-"right foot length":[30,32, "Bende:r_heel","Bende:r_toe"],
-}
-
 # l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
-r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_resampled)
+r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], True, time_resampled)
 
 
 # statistic_data = {}

@@ -265,24 +265,21 @@ def find_start_sync(dataset):
     for record in dataset:
         for i in range(150):
             temp[i] = dataset[record][i]
-        
-        if record.find("squat_1") > 0:
-            start[record] = max(range(len(temp)), key=temp.__getitem__)
-            #print("The max index: "+str(np.argmax(temp))+" with value: "+str(max(temp)))
-        elif record.find("kitores") > 0:
-            if record.find('ot_') > -1:
-                #print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
-                start[record] = min(range(len(temp)), key=temp.__getitem__)
-            else: 
-                mp_temp = []
-                for i in range(20):
-                    mp_temp.append(dataset[record][i])
-                #print("The min index: "+str(np.argmin(mp_temp))+" with value: "+str(min(mp_temp)))
-                start[record] = min(range(len(mp_temp)), key=mp_temp.__getitem__)
-        else:
-            #print("The min index: "+str(np.argmin(temp))+" with value: "+str(min(temp)))
-            start[record] = min(range(len(temp)), key=temp.__getitem__)
+        start[record] = min(range(len(temp)), key=temp.__getitem__)
     return start
+
+def find_end_sync(dataset):
+    from matplotlib import pyplot as plt
+    end = {}
+    temp = [None]*150
+    for record in dataset:
+        for i in range(150):
+            temp[i] = dataset[record][-(i+1)]
+        end[record] = min(range(len(temp)), key=temp.__getitem__)
+        plt.title(record)
+        plt.plot(temp)
+        plt.show()
+    return end
 
 #%% Pairing up data
 
@@ -391,6 +388,36 @@ def data_resample(dataset, time):
             else:
                 resampled_dataset[pair][record] = dataset[pair][record]
                 resampled_time[pair][record] = time[pair][record]
+    return resampled_dataset, resampled_time
+
+def data_resample_2(dataset, time):
+    resampled_dataset = {}
+    resampled_time = {}
+    resamp_data = {}
+    for pair in dataset:
+        for record in dataset[pair]:
+            if record.find("mp_") >= 0:
+                resamp_data[pair] = [int(120*max(time[pair][record])),min(time[pair][record])]
+    for pair in dataset:
+        resampled_dataset[pair] = {}
+        resampled_time[pair] = {}
+        for record in dataset[pair]:
+            resampled_dataset[pair][record] = {}
+            for joint in dataset[pair][record]:
+                resampled_dataset[pair][record][joint] = {}
+                for coordinates in dataset[pair][record][joint]:
+                    resampled_dataset[pair][record][joint][coordinates] = resample_by_interpolation(
+                        dataset[pair][record][joint][coordinates],
+                        len(dataset[pair][record][joint][coordinates]),
+                        resamp_data[pair][0])
+                    
+            x = time[pair][record]
+            resampled_time[pair][record] = np.linspace(resamp_data[pair][1],
+            x[-1],
+            int(len(resampled_dataset[pair][record][joint][coordinates])),
+            endpoint=False
+            )
+
     return resampled_dataset, resampled_time
 
 #%% Creating vector arrays
@@ -530,7 +557,7 @@ def landmark_to_csv(time_data, landmark, file):
 
 #%% Box plotting functions
 
-def box_plotting_for_pair(dataset):
+def box_plotting_for_pair(dataset, name=None):
     from matplotlib import pyplot as plt
     for pair in dataset:
         fig, ax = plt.subplots()
@@ -538,12 +565,18 @@ def box_plotting_for_pair(dataset):
         plot_data = []
         ax.set_title(pair)
         for record in dataset[pair]:
-            label_for_plots.append(record)
             plot_data.append(dataset[pair][record].copy())
-        ax.boxplot(plot_data, labels=label_for_plots, notch=True)
-        plt.ylabel("Kéz hosszának szórása, átlaga")
-        plt.xlabel("Adatsorok")
+            record = record.replace("_"," ")
+            record = record.replace(".csv","")
+            label_for_plots.append(record)
+
+        ax.plot(plot_data)
+        ax.legend(label_for_plots)
+        ax.set_title("Standard deviation of " + name + " in " + pair)
+        plt.ylabel("Standard deviations in OT [m], Pose [-], Pose World [m]")
+        plt.xlabel("Datasets")
         plt.show()
+
 
 def box_plotting_for_all(dataset, title_name = None):
     from matplotlib import pyplot as plt
@@ -625,6 +658,88 @@ def box_plotting_for_all(dataset, title_name = None):
         f.close()
 
     return bp_data
+
+def box_plotting_for_exercise(dataset, title_name = None):
+    from matplotlib import pyplot as plt
+    plot_data = {}
+    label_for_plots = ["OptiTrack","MediaPipe Pose","MediaPipe Pose World"]
+    for pair in dataset:
+        for record in dataset[pair]:
+            plot_data[pair] = {}
+            if record.find('ot_') > -1:
+                try:
+                    plot_data[label_for_plots[0]][record] = dataset[pair][record].copy()
+                except KeyError:
+                    plot_data[label_for_plots[0]] = {}
+                    plot_data[label_for_plots[0]][record] = dataset[pair][record].copy()
+            elif record.find('pose_world_') > -1:
+                try:    
+                    plot_data[label_for_plots[2]][record] = dataset[pair][record].copy()
+                except KeyError:
+                    plot_data[label_for_plots[2]] = {}
+                    plot_data[label_for_plots[2]][record] = dataset[pair][record].copy()
+            else:
+                try:
+                    plot_data[label_for_plots[1]][record] = dataset[pair][record].copy()
+                except KeyError:
+                    plot_data[label_for_plots[1]] = {}
+                    plot_data[label_for_plots[1]][record] = dataset[pair][record].copy()
+    temp_data = []
+    
+    for mts in plot_data:
+        temp_data.append(plot_data[mts])
+    fig, ax = plt.subplots()
+    if title_name != None:
+        title_name = "Boxplot: " + title_name
+        ax.set_title(title_name)
+        title_name = title_name.replace(" ", "_")
+        title_name = title_name.replace(":", "_")
+    else:
+        ax.set_title("Szórási boxplot")
+    bp = ax.boxplot(temp_data, labels=label_for_plots, notch=True, showmeans=True)
+    plt.ylabel("Length")
+    plt.xlabel("Datasets")
+
+    f = "C:/dev/thesis/data/plots/BoxPlotd/" + title_name + ".svg"
+    plt.savefig(f, format='svg')
+    plt.show()
+    medians = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['medians']]
+    means = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['means']]
+    minimums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][::2]
+    maximums = [(round(item.get_ydata()[0] * 2, 3) / 2) for item in bp['caps']][1::2]
+    q1 = [(round((min(item.get_ydata())*2), 3)/2) for item in bp['boxes']]
+    q3 = [(round((max(item.get_ydata())*2), 3)/2)  for item in bp['boxes']]
+    fliers = [item.get_ydata() for item in bp['fliers']]
+    lower_outliers = []
+    upper_outliers = []
+    for i in range(len(fliers)):
+        lower_outliers_by_box = []
+        upper_outliers_by_box = []
+        for outlier in fliers[i]:
+            if outlier < q1[i]:
+                lower_outliers_by_box.append((round(outlier*2, 3)/2))
+            else:
+                upper_outliers_by_box.append((round(outlier*2, 3)/2))
+        lower_outliers.append(lower_outliers_by_box)
+        upper_outliers.append(upper_outliers_by_box)  
+        
+    # New code
+    stats = [medians, means, minimums, maximums, q1, q3, lower_outliers, upper_outliers]
+    stats_names = ['Median', 'Mean', 'Minimum', 'Maximum', 'Q1', 'Q3', 'Lower outliers', 'Upper outliers']
+# to be updated
+    file_name = "C:/dev/thesis/data/plots/Boxplotd/" + title_name
+    with  open(file_name,'w') as f:
+        for i,name in enumerate(label_for_plots):
+            print(f'\033[1m{name}\033[0m')
+            f.write(name + ": \n")
+            for j in range(len(stats)):
+                print(f'{stats_names[j]}: {stats[j][i]}')
+                f.write(f'{stats_names[j]}: {stats[j][i]} \n')
+            f.write('\n')
+            print('\n')
+        f.close()
+
+    return bp_data   
 #%% landmark to array
 
 def land_to_arr(landmark):

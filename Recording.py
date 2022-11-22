@@ -16,7 +16,7 @@ import objects
 COLOR_B = (255,0,0)
 COLOR_G = (0,255,0)
 COLOR_R = (0,0,255)
-SET_FPS = 25
+SET_FPS = 20
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -57,16 +57,17 @@ j = 0
 k = 0
 rep_count = 0
 inp = input()
+
 with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-    #pers = objects.Person()
     rec_on = False
     rec = False
+    first_iter = True
     moves_pose = []
     moves_world = []
     t_data = []
     fps_arr = []
     while cap.isOpened():
-        t = time.time_ns()
+
         success, img = cap.read()
         i = i + 1
         if success == True:
@@ -87,23 +88,27 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
                     functions.write_on_image(img, 'Visible', (10,70), (0, 255, 0))
                     start_dist = functions.dist_2_landmarks(landmarks, [20,19])
 
-                    if (start_dist < 0.1) and rec_on:
-                        rec = False
-                    elif (start_dist < 0.06):
+                    if (start_dist < 0.06):
                         rec = True
+                        
                     if rec:        
-                        moves_pose.append(functions.land_to_arr(results.pose_landmarks.landmark).copy())
-                        moves_world.append(functions.land_to_arr(results.pose_world_landmarks.landmark).copy())
-                        t_new = time.time_ns()
-                        d_t = (t_new - t)/ (10 ** 9)
-                        while (1/d_t) >= SET_FPS*1.02:
+
+                        if first_iter:
+                            t_ok = time.time_ns()
+                            t = time.time_ns()
+                            first_iter = False
+                        else:
                             t_new = time.time_ns()
                             d_t = (t_new - t)/ (10 ** 9)
-                        
-                        fps = f"{(1/d_t):.1f}fps"
-                        fps_arr.append(1/d_t)
-                        functions.write_on_image(img, fps, (10,35),(0, 255, 255))
-                        t_data.append(d_t)
+                            
+                            fps = f"{(1/d_t):.1f}fps"
+                            fps_arr.append(1/d_t)
+                            t = time.time_ns()
+                            functions.write_on_image(img, fps, (10,35),(0, 255, 255))
+                            t_data.append(d_t)
+                            print((time.time_ns() - t_ok)/ (10 ** 9))
+                            moves_pose.append(functions.land_to_arr(results.pose_landmarks.landmark).copy())
+                            moves_world.append(functions.land_to_arr(results.pose_world_landmarks.landmark).copy())
                         
                 
                 else:
@@ -119,7 +124,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         else:
             break
     
-    
+
     
     
 if cap.isOpened():
