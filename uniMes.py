@@ -67,9 +67,9 @@ dist_hands = Merge(dist_mp_hands, dist_ot_hands)
 #%% Data sync
 
 start_sync_datasample = functions.find_start_sync(dist_hands)
-start_sync_datasample = functions.find_end_sync(dist_hands)
+end_sync_datasample = functions.find_end_sync(dist_hands)
 
-data_points_synced, time_synced = functions.mod_data(data_points,time_data, start_sync_datasample)
+data_points_synced, time_synced = functions.mod_data(data_points,time_data, start_sync_datasample, end_sync_datasample)
 
 #%% Pairing data
 paired_data_points, paired_time = functions.create_pairs(data_points_synced,time_synced)
@@ -79,9 +79,6 @@ dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Be
 #%% Cutting for same length
 
 # cutted_data_points,time_cutted  = functions.manual_cut(paired_data_points,paired_time)
-
-dist_ot_hands = functions.distance_plotting_pair(paired_data_points, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, paired_time)
-
 # %% Resampling phase 
 
 #data_points_resampled, time_resampled = functions.data_resample(cutted_data_points, time_cutted)

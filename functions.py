@@ -190,7 +190,7 @@ def distance_plotting(dataset, points_between, plotting, time=None):
                 plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 title = title.replace(" ", "_")
                 title = title.replace(":", "_")
-                plt.savefig("C:/dev/C:/dev/thesis/data/plots/"+title+".svg")
+                # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 plt.show()
             elif plotting:
                 print("no time data")
@@ -261,24 +261,23 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
 
 def find_start_sync(dataset):
     start = {}
-    temp = [None]*150
     for record in dataset:
-        for i in range(150):
+        length = int(len(dataset[record])/2)
+        temp = [None]*length
+        for i in range(length):
             temp[i] = dataset[record][i]
         start[record] = min(range(len(temp)), key=temp.__getitem__)
     return start
 
 def find_end_sync(dataset):
-    from matplotlib import pyplot as plt
     end = {}
-    temp = [None]*150
     for record in dataset:
-        for i in range(150):
-            temp[i] = dataset[record][-(i+1)]
-        end[record] = min(range(len(temp)), key=temp.__getitem__)
-        plt.title(record)
-        plt.plot(temp)
-        plt.show()
+        length = int(len(dataset[record])/2)
+        temp = [None]*length
+        for i in range(length):
+            temp[i] = dataset[record][i+length]
+        end[record] = length-min(range(len(temp)), key=temp.__getitem__)
+
     return end
 
 #%% Pairing up data
@@ -318,25 +317,48 @@ def manual_cut(dataset, time):
 
 #%% Sync data
 
-def mod_data(dataset, time, start_index):
+def mod_data(dataset, time, start_index, end_index):
     import matplotlib.pyplot as plt
     new_dataset = {}
-    for record in dataset:
-        for start in start_index:
-            if start == record:
-                new_dataset[start] = {}
-                for joint in dataset[record]:
-                    new_dataset[start][joint] = {}
-                    for coordinates in dataset[record][joint]:
-                        new_dataset[record][joint][coordinates] = dataset[record][joint][coordinates][start_index[start]:]
+
+    for start in start_index:
+        new_dataset[start] = {}
+        for joint in dataset[start]:
+            new_dataset[start][joint] = {}
+            # print("Hossz elő:" + str(len(dataset[start][joint]['z'])))
+            for coordinates in dataset[start][joint]:
+                if start.find("ot_star") > -1:
+                    for i in range(start_index[start]+45):
+                        dataset[start][joint][coordinates].pop(0)
+                    for i in range(end_index[start]):
+                        dataset[start][joint][coordinates].pop()
+                elif start.find("ot_squat") > -1:
+                    for i in range(start_index[start]+45):
+                        dataset[start][joint][coordinates].pop(0)
+                    for i in range(end_index[start]-15):
+                        dataset[start][joint][coordinates].pop()
+                elif start.find("ot_flies") > -1:
+                    for i in range(start_index[start]+45):
+                        dataset[start][joint][coordinates].pop(0)
+                    for i in range(end_index[start]):
+                        dataset[start][joint][coordinates].pop()
+                else:
+                    for i in range(start_index[start]):
+                        dataset[start][joint][coordinates].pop(0)
+                    for i in range(end_index[start]):
+                        dataset[start][joint][coordinates].pop()
+        # print("Hossz utó:" + str(len(dataset[start][joint][coordinates])))
+        # print("hossz levág:" +str(start_index[start]+end_index[start]))
+
     new_time = {}
     for record in dataset:
-        for start in start_index:
-            if start == record:
-                new_time[record] = {}
-                new_time[record] = time[record][start_index[start]:]
+        for i in range(start_index[record]):
+            time[record].pop(0)
+        for i in range(end_index[record]):
+            time[record].pop()
+
                         
-    return new_dataset, new_time
+    return dataset, time
 
 #%% Interpolation resampling
 
@@ -396,8 +418,8 @@ def data_resample_2(dataset, time):
     resamp_data = {}
     for pair in dataset:
         for record in dataset[pair]:
-            if record.find("mp_") >= 0:
-                resamp_data[pair] = [int(120*max(time[pair][record])),min(time[pair][record])]
+            if record.find("ot_") >= 0:
+                resamp_data[pair] = [int(120*max(time[pair][record])),max(time[pair][record])]
     for pair in dataset:
         resampled_dataset[pair] = {}
         resampled_time[pair] = {}
@@ -412,8 +434,8 @@ def data_resample_2(dataset, time):
                         resamp_data[pair][0])
                     
             x = time[pair][record]
-            resampled_time[pair][record] = np.linspace(resamp_data[pair][1],
-            x[-1],
+            resampled_time[pair][record] = np.linspace(0,
+            resamp_data[pair][1],
             int(len(resampled_dataset[pair][record][joint][coordinates])),
             endpoint=False
             )
