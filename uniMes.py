@@ -93,7 +93,7 @@ data_points_resampled, time_resampled = functions.data_resample_2(paired_data_po
 #%% Box plotting of rigid bodies
 
 # l_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [15,13, "Bende:l_wrist","Bende:l_elbow"], False, time_resampled)
-r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], True, time_resampled)
+r_dist_mp_hands = functions.distance_plotting_pair(data_points_resampled, [16,15, "Bende:r_wrist","Bende:l_wrist"], False, time_resampled)
 
 
 # statistic_data = {}

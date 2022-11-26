@@ -241,7 +241,7 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
                 # plot_data_x.append(time[pair][record])
                 plt.plot(time[pair][record], mes_dist[pair][record], '.-')
                 #plt.plot(mes_dist[pair][record], '.-')
-                title = "("+ pair + ")" + "Összesített " + str(name_r) + " és " + str(name_l) + " markerek között"
+                title = "("+ pair + ") " + "Összesített " + str(name_r) + " és " + str(name_l) + " markerek között"
                 plt.title(title)
                 plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
                 plt.xlabel("Idő [s]")
@@ -502,15 +502,18 @@ def angle_plotting_pair(v_1, v_2, plotting):
                 # plot_data_x.append(time[pair][record])
                 #plt.plot(time[pair][record], mes_dist[pair][record], '.-')
                 plt.plot(mes_angle[pair][record], '.-')
-                plt.xlabel("Mintavétel száma [-]")
-                plt.ylabel("Bezárt szög [°]")
+                plt.xlabel("Datasample [-]")
+                plt.ylabel("Angles [°]")
                 # title = title.replace(" ", "_")
                 # title = title.replace(":", "_")
                 # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
         if plotting:
+            for leg in temp_legend:
+                leg = leg.replace("_", " ")
+                leg = leg.replace(".csv", "")
+                leg = leg.replace("1", "")
             plt.legend(temp_legend)
-            title = pair + ": Bezárt szögek " 
-            plt.title(title)
+            plt.title("Angles in: " + pair)
             plt.show()
                 
     return mes_angle
@@ -579,52 +582,72 @@ def landmark_to_csv(time_data, landmark, file):
 
 #%% Box plotting functions
 
-def box_plotting_for_pair(dataset, name=None):
+def time_plotting_for_pair(dataset, name=None):
     from matplotlib import pyplot as plt
     for pair in dataset:
-        fig, ax = plt.subplots()
+        #fig, ax = plt.subplots()
         label_for_plots = []
         plot_data = []
-        ax.set_title(pair)
+        # ax.set_title(pair)
         for record in dataset[pair]:
             plot_data.append(dataset[pair][record].copy())
             record = record.replace("_"," ")
             record = record.replace(".csv","")
             label_for_plots.append(record)
 
-        ax.plot(plot_data)
-        ax.legend(label_for_plots)
-        ax.set_title("Standard deviation of " + name + " in " + pair)
-        plt.ylabel("Standard deviations in OT [m], Pose [-], Pose World [m]")
-        plt.xlabel("Datasets")
+        plt.plot(plot_data[0], '.-',plot_data[1], '.-', plot_data[2], '.-' )
+        plt.legend(label_for_plots)
+        plt.title("Standard deviation of " + name + " in " + pair)
+        plt.ylabel("Deviations in OT [m], Pose [-], Pose World [m]")
+        plt.xlabel("Sample []")
         plt.show()
 
+def box_plotting_for_pair(dataset, name=None):
+    from matplotlib import pyplot as plt
+    for pair in dataset:
+        #fig, ax = plt.subplots()
+        label_for_plots = []
+        plot_data = []
+        # ax.set_title(pair)
+        for record in dataset[pair]:
+            plot_data.append(dataset[pair][record].copy())
+            record = record.replace("_"," ")
+            record = record.replace(".csv","")
+            label_for_plots.append(record)
+
+        plt.boxplot(plot_data, labels=label_for_plots, notch=True, showmeans=True)
+        plt.title("Boxplot representation of " + name + " in " + pair)
+        plt.ylabel("Standard deviations in OT [m], Pose [-], Pose World [m]")
+        plt.xlabel("Dataset")
+        plt.show()
 
 def box_plotting_for_all(dataset, title_name = None):
     from matplotlib import pyplot as plt
     plot_data = {}
-    label_for_plots = ["OptiTrack","MediaPipe Pose","MediaPipe Pose World"]
+    label_for_plots = ["MediaPipe Pose World","MediaPipe Pose","OptiTrack"]
+    print(label_for_plots[2])
     for pair in dataset:
         
         for record in dataset[pair]:
-            if record.find('ot_') > -1:
+            if record.find('ot_') >= 0:
                 try:
                     for dists in dataset[pair][record]:
-                        plot_data[label_for_plots[0]].append(dists.copy())
+                        plot_data["OptiTrack"].append(dists.copy())
                 except KeyError:
-                    plot_data[label_for_plots[0]] = dataset[pair][record].copy()
-            elif record.find('pose_world_') > -1:
+                    plot_data["OptiTrack"] = dataset[pair][record].copy()
+            elif record.find('pose_world_') >= 0:
                 try:    
                     for dists in dataset[pair][record]:
-                        plot_data[label_for_plots[1]].append(dists.copy())
+                        plot_data["MediaPipe Pose World"].append(dists.copy())
                 except KeyError:
-                    plot_data[label_for_plots[1]] = dataset[pair][record].copy()
+                    plot_data["MediaPipe Pose World"] = dataset[pair][record].copy()
             else:
                 try:
                     for dists in dataset[pair][record]:
-                        plot_data[label_for_plots[2]].append(dists.copy())
+                        plot_data["MediaPipe Pose"].append(dists.copy())
                 except KeyError:
-                    plot_data[label_for_plots[2]] = dataset[pair][record].copy()
+                    plot_data["MediaPipe Pose"] = dataset[pair][record].copy()
+                    print(label_for_plots[2])
     temp_data = []
     for mts in plot_data:
         temp_data.append(plot_data[mts])
@@ -636,8 +659,8 @@ def box_plotting_for_all(dataset, title_name = None):
         title_name = title_name.replace(":", "_")
     else:
         ax.set_title("Szórási boxplot")
-    bp = ax.boxplot(temp_data, labels=label_for_plots, notch=True, showmeans=True)
-    plt.ylabel("Length")
+    bp = ax.boxplot(temp_data, labels=list(plot_data.keys()), notch=True, showmeans=True)
+    plt.ylabel("Length OT [m], Pose [-], Pose World [m]")
     plt.xlabel("Datasets")
 
     f = "C:/dev/thesis/data/plots/BoxPlotd/" + title_name + ".svg"

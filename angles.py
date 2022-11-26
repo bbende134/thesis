@@ -5,36 +5,44 @@ import matplotlib.pyplot as plt
 vec_set_1, vec_set_2 = uniMes.functions.vector_array(uniMes.data_points_resampled, [16,14,"Bende:r_wrist","Bende:r_elbow"],[12,14,"Bende:r_shoulder","Bende:r_elbow"])
 angles = uniMes.functions.angle_plotting_pair(vec_set_1,vec_set_2,True)
 
-pair = 'kitores_bal_2'
+pair = 'star_1'
 ot = 'ot_'+pair+'.csv'
 mp_w = 'mp_pose_world_'+pair+'.csv'
 mp = 'mp_pose_'+pair+'.csv'
 
 angle_dev_mp = []
-angles[pair][ot].pop()
-angles[pair][mp_w].pop()
+# angles[pair][ot].pop()
+# angles[pair][mp_w].pop()
 try: 
     for i in range(len(angles[pair][ot])):
         angle_dev_mp.append(abs(angles[pair][ot][i]-angles[pair][mp][i]))
 except KeyError or IndexError:
+    print("key error")
     pass
 angle_dev_mp_w = []
 try: 
     for i in range(len(angles[pair][ot])):
         angle_dev_mp_w.append(abs(angles[pair][ot][i]-angles[pair][mp_w][i]))
 except KeyError or IndexError:
+    print("key error")
     pass
 
 
+mp = mp.replace("_", " ")
+mp = mp.replace(".csv", "")
+mp = mp.replace("1", "")
+mp_w = mp_w.replace("_", " ")
+mp_w = mp_w.replace(".csv", "")
+mp_w = mp_w.replace("1", "")
 label_for_plots = [mp, mp_w]
 angle_dev = [angle_dev_mp, angle_dev_mp_w]
 # label_for_plots = [mp]
 # angle_dev = [angle_dev_mp]
 fig, ax = plt.subplots()
-plt.title("Bezárt szögek: " + pair)
+plt.title("Elbow angles in: " + pair)
 bp_adatok = ax.boxplot(angle_dev, labels=label_for_plots, notch=True, showmeans=True)
-plt.ylabel("Bezárt szögek [°]")
-plt.xlabel("Adatsor")
+plt.ylabel("Angles [°]")
+plt.xlabel("Dataset")
 f = "C:/dev/thesis/data/plots/BoxPlotd/angles_" + pair + ".svg"
 plt.savefig(f, format='svg')
 plt.show()
