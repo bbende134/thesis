@@ -182,14 +182,33 @@ def distance_plotting(dataset, points_between, plotting, time=None):
         if len(dists) > 1:
             mes_dist[record] = dists
             if plotting and time:
-                
+                leg = record
+                title = record
+                title = title.replace("1", "")
+                title = title.replace(".csv", "")
+                title = title.replace("mp_pose_world", "")
+                title = title.replace("mp_pose", "")
+                title = title.replace("ot", "")
+                title = title.replace("_", "")
+                leg = leg.replace(title,"")
+                leg = leg.replace(":", "")
+                leg = leg.replace("1", "")
+                leg = leg.replace("_", " ")
+                leg = leg.replace(".csv", "")
+                leg = leg.replace("mp pose world", "MPW [m]")
+                leg = leg.replace("mp pose", "MPP [1]")
+                leg = leg.replace("ot", "OT [m]")
+                leg = [leg]
                 plt.plot(dists, '.-')
-                title = "("+ record + ")" + " Távolság " + str(name_r) + " és " + str(name_l) + " markerek között"
+                
+                title = "Exercise: " + title +  ", markers: " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
-                plt.xlabel("Mintavétel száma [-]")
-                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
+                plt.legend(leg)
+                plt.ylabel("Distance between points")
+                plt.xlabel("Sample [1]")
                 title = title.replace(" ", "_")
                 title = title.replace(":", "_")
+                plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
                 plt.show()
             elif plotting:
@@ -232,19 +251,28 @@ def distance_plotting_pair(dataset, points_between, plotting, time=None):
                 mes_dist[pair][record] = dists
     for pair in mes_dist:
         temp_legend = []
-        plot_data_y = []
-        plot_data_x = []
         for record in mes_dist[pair]:
-            temp_legend.append(record)
+            leg = record
+            leg = leg.replace(":", "")
+            leg = leg.replace(pair, "")
+            leg = leg.replace("_", " ")
+            leg = leg.replace(".csv", "")
+            leg = leg.replace("mp pose world", "MPW [m]")
+            leg = leg.replace("mp pose", "MPP [1]")
+            leg = leg.replace("ot", "OT [m]")
+            temp_legend.append(leg)
             if plotting and time[pair]:
                 # plot_data_y.append(mes_dist[pair][record])
                 # plot_data_x.append(time[pair][record])
-                plt.plot(time[pair][record], mes_dist[pair][record], '.-')
+                plt.plot(time[pair][record], mes_dist[pair][record])
                 #plt.plot(mes_dist[pair][record], '.-')
-                title = "("+ pair + ") " + "Összesített " + str(name_r) + " és " + str(name_l) + " markerek között"
+                
+                temp_pair = pair.replace("_", " ")
+                temp_pair = temp_pair.replace("1", "")
+                title = "Exercise: " + temp_pair +  ", markers: " + str(name_r) + " and " + str(name_l)
                 plt.title(title)
-                plt.ylabel("Távolság adott pontok között OT [m], PW [m], P[-]")
-                plt.xlabel("Idő [s]")
+                plt.ylabel("Distance between points")
+                plt.xlabel("Time [s]")
                 title = title.replace(" ", "_")
                 title = title.replace(":", "_")
                 plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
@@ -484,7 +512,7 @@ def vector_array(dataset, body_part_1, body_part_2):
 
 #%% PLotting angles
 
-def angle_plotting_pair(v_1, v_2, plotting):
+def angle_plotting_pair(v_1, v_2,time_data,name, plotting):
     from matplotlib import pyplot as plt
     mes_angle = {}
     for pair in v_1:
@@ -497,24 +525,41 @@ def angle_plotting_pair(v_1, v_2, plotting):
         temp_legend = []
         for record in mes_angle[pair]:
             temp_legend.append(record)
-            if plotting:
+
                 # plot_data_y.append(mes_dist[pair][record])
                 # plot_data_x.append(time[pair][record])
                 #plt.plot(time[pair][record], mes_dist[pair][record], '.-')
-                plt.plot(mes_angle[pair][record], '.-')
-                plt.xlabel("Datasample [-]")
-                plt.ylabel("Angles [°]")
-                # title = title.replace(" ", "_")
-                # title = title.replace(":", "_")
-                # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+            plt.plot(time_data[pair][record],mes_angle[pair][record])
+            plt.xlabel("Time [s]")
+            plt.ylabel("Angles [°]")
+            temp_pair = pair.replace("_", " ")
+            temp_pair = temp_pair.replace("1", "")
+            title = "Angles in exercise: " + temp_pair + "for: " + name
+            plt.title(title)
+
+            title = title.replace(" ", "_")
+            title = title.replace(":", "_")
+            # title = title.replace(" ", "_")
+            # title = title.replace(":", "_")
+            # plt.savefig("C:/dev/thesis/data/plots/"+title+".svg")
+
+        for i,leg in enumerate(temp_legend):
+            leg = leg.replace(pair, "")
+            leg = leg.replace("_", " ")
+            leg = leg.replace(".csv", "")
+            leg = leg.replace("mp pose world", "MPW")
+            leg = leg.replace("mp pose", "MPP")
+            leg = leg.replace("ot", "OT")
+            temp_legend[i] = leg
+        plt.legend(temp_legend)
+
+        f = "C:/dev/thesis/data/plots/BoxPlotd/angles/" + title + ".svg"
+        plt.savefig(f, format='svg')
         if plotting:
-            for leg in temp_legend:
-                leg = leg.replace("_", " ")
-                leg = leg.replace(".csv", "")
-                leg = leg.replace("1", "")
-            plt.legend(temp_legend)
-            plt.title("Angles in: " + pair)
             plt.show()
+        else: 
+            plt.clf()
+
                 
     return mes_angle
 
@@ -598,12 +643,15 @@ def time_plotting_for_pair(dataset, name=None):
         plt.plot(plot_data[0], '.-',plot_data[1], '.-', plot_data[2], '.-' )
         plt.legend(label_for_plots)
         plt.title("Standard deviation of " + name + " in " + pair)
+
         plt.ylabel("Deviations in OT [m], Pose [-], Pose World [m]")
         plt.xlabel("Sample []")
         plt.show()
 
 def box_plotting_for_pair(dataset, name=None):
     from matplotlib import pyplot as plt
+    import matplotlib.lines as mlines
+    import matplotlib.patches as mpatches
     for pair in dataset:
         #fig, ax = plt.subplots()
         label_for_plots = []
@@ -611,15 +659,80 @@ def box_plotting_for_pair(dataset, name=None):
         # ax.set_title(pair)
         for record in dataset[pair]:
             plot_data.append(dataset[pair][record].copy())
-            record = record.replace("_"," ")
-            record = record.replace(".csv","")
-            label_for_plots.append(record)
-
+            leg = record
+            leg = leg.replace(":", "")
+            leg = leg.replace(pair, "")
+            leg = leg.replace("_", " ")
+            leg = leg.replace(".csv", "")
+            leg = leg.replace("mp pose world", "MPW [m]")
+            leg = leg.replace("mp pose", "MPP [1]")
+            leg = leg.replace("ot", "OT [m]")
+            label_for_plots.append(leg)
+        
+        green_triangle = mlines.Line2D([], [], color='green', marker='^', linestyle='None',
+                          markersize=10, label='Average')
+        orange_line = mlines.Line2D([], [], color='orange',
+                           label='Median')
+        plt.legend(handles=[green_triangle, orange_line])
         plt.boxplot(plot_data, labels=label_for_plots, notch=True, showmeans=True)
+        pair = pair.replace("_1","")
+        title = "Boxplot representation of " + name + " in " + pair
         plt.title("Boxplot representation of " + name + " in " + pair)
-        plt.ylabel("Standard deviations in OT [m], Pose [-], Pose World [m]")
+        plt.ylabel("Standard deviations")
         plt.xlabel("Dataset")
-        plt.show()
+        title = title.replace(" ","_")
+        plt.savefig("C:/dev/thesis/data/plots/Boxplotd/rigidbodi/"+title+".svg")
+        plt.clf()
+        # plt.show()
+
+def box_plotting_for_pair_2(dataset, name=None):
+    from matplotlib import pyplot as plt
+    import matplotlib.lines as mlines
+    tmp_dataset = {}
+    label_for_plots = [None]*6
+    names_for_plot = ["MediaPipe Pose World","MediaPipe Pose","OptiTrack"]
+    for i,pair in enumerate(dataset):
+        #fig, ax = plt.subplots()
+        # ax.set_title(pair)
+        for record in dataset[pair]:
+
+            if record.find('ot_') >= 0:
+                try:
+                    tmp_dataset["OptiTrack"].append(dataset[pair][record].copy())
+                except KeyError:
+                    tmp_dataset["OptiTrack"] = [dataset[pair][record].copy()]
+            elif record.find('pose_world_') >= 0:
+                try:
+                    tmp_dataset["MediaPipe Pose World"].append(dataset[pair][record].copy())
+                except KeyError:
+                    tmp_dataset["MediaPipe Pose World"] = [dataset[pair][record].copy()]
+            else:
+                try:
+                    tmp_dataset["MediaPipe Pose"].append(dataset[pair][record].copy())
+                except KeyError:
+                    tmp_dataset["MediaPipe Pose"] = [dataset[pair][record].copy()]
+                    
+        leg = pair
+        leg = leg.replace("_1", "")
+        
+        label_for_plots[i] = leg
+
+    for i,data in enumerate(tmp_dataset):
+        green_triangle = mlines.Line2D([], [], color='green', marker='^', linestyle='None',
+                            markersize=10, label='Average')
+        orange_line = mlines.Line2D([], [], color='orange',
+                            label='Median')
+        plt.legend(handles=[green_triangle, orange_line])
+        plt.boxplot(tmp_dataset[data], labels=label_for_plots, notch=True, showmeans=True)
+        
+        title = "Boxplot representation of " + name + " of " + data
+        plt.title(title)
+        plt.ylabel("Standard deviations")
+        plt.xlabel("Dataset")
+        title = title.replace(" ","_")
+        plt.savefig("C:/dev/thesis/data/plots/Boxplotd/rigidbodi/"+title+".svg")
+        plt.clf()
+        # plt.show()
 
 def box_plotting_for_all(dataset, title_name = None):
     from matplotlib import pyplot as plt

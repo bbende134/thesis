@@ -1,52 +1,68 @@
 import uniMes
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+
+def legending (leg):
+    leg = leg.replace(":", "")
+    leg = leg.replace(pair, "")
+    leg = leg.replace("_", " ")
+    leg = leg.replace(".csv", "")
+    leg = leg.replace("mp pose world", "MPW")
+    leg = leg.replace("mp pose", "MPP")
+    leg = leg.replace("ot", "OT [m]")
+    return leg
+
+angles_between = {"right elbow":[[16,14,"Bende:r_wrist","Bende:r_elbow"],[12,14,"Bende:r_shoulder","Bende:r_elbow"]],
+"upper arms":[[14,12,"Bende:r_elbow","Bende:r_shoulder"],[11,13,"Bende:l_shoulder","Bende:l_elbow"]],
+"right knee":[[28,26,"Bende:r_ankle","Bende:r_knee"],[24,26,"Bende:r_hip","Bende:r_knee"]],
+"right leg and torso":[[26,24,"Bende:r_knee","Bende:r_hip"],[12,24,"Bende:r_shoulder","Bende:r_hip"]]}
+
+for pair in uniMes.data_points_resampled:
+    for parts in angles_between:
+        vec_set_1, vec_set_2 = uniMes.functions.vector_array(uniMes.data_points_resampled, angles_between[parts][0],angles_between[parts][1])
+        angles = uniMes.functions.angle_plotting_pair(vec_set_1,vec_set_2,uniMes.time_resampled,parts,False)
 
 
-vec_set_1, vec_set_2 = uniMes.functions.vector_array(uniMes.data_points_resampled, [16,14,"Bende:r_wrist","Bende:r_elbow"],[12,14,"Bende:r_shoulder","Bende:r_elbow"])
-angles = uniMes.functions.angle_plotting_pair(vec_set_1,vec_set_2,True)
+        ot = 'ot_'+pair+'.csv'
+        mp_w = 'mp_pose_world_'+pair+'.csv'
+        mp = 'mp_pose_'+pair+'.csv'
 
-pair = 'star_1'
-ot = 'ot_'+pair+'.csv'
-mp_w = 'mp_pose_world_'+pair+'.csv'
-mp = 'mp_pose_'+pair+'.csv'
-
-angle_dev_mp = []
-# angles[pair][ot].pop()
-# angles[pair][mp_w].pop()
-try: 
-    for i in range(len(angles[pair][ot])):
-        angle_dev_mp.append(abs(angles[pair][ot][i]-angles[pair][mp][i]))
-except KeyError or IndexError:
-    print("key error")
-    pass
-angle_dev_mp_w = []
-try: 
-    for i in range(len(angles[pair][ot])):
-        angle_dev_mp_w.append(abs(angles[pair][ot][i]-angles[pair][mp_w][i]))
-except KeyError or IndexError:
-    print("key error")
-    pass
+        angle_dev_mp = []
+        # angles[pair][ot].pop()
+        # angles[pair][mp_w].pop()
+        try: 
+            for i in range(len(angles[pair][ot])):
+                angle_dev_mp.append(abs(angles[pair][ot][i]-angles[pair][mp][i]))
+        except KeyError or IndexError:
+            print("key error")
+            pass
+        angle_dev_mp_w = []
+        try: 
+            for i in range(len(angles[pair][ot])):
+                angle_dev_mp_w.append(abs(angles[pair][ot][i]-angles[pair][mp_w][i]))
+        except KeyError or IndexError:
+            print("key error")
+            pass
 
 
-mp = mp.replace("_", " ")
-mp = mp.replace(".csv", "")
-mp = mp.replace("1", "")
-mp_w = mp_w.replace("_", " ")
-mp_w = mp_w.replace(".csv", "")
-mp_w = mp_w.replace("1", "")
-label_for_plots = [mp, mp_w]
-angle_dev = [angle_dev_mp, angle_dev_mp_w]
-# label_for_plots = [mp]
-# angle_dev = [angle_dev_mp]
-fig, ax = plt.subplots()
-plt.title("Elbow angles in: " + pair)
-bp_adatok = ax.boxplot(angle_dev, labels=label_for_plots, notch=True, showmeans=True)
-plt.ylabel("Angles [°]")
-plt.xlabel("Dataset")
-f = "C:/dev/thesis/data/plots/BoxPlotd/angles_" + pair + ".svg"
-plt.savefig(f, format='svg')
-plt.show()
-uniMes.functions.bp_data(bp_adatok, pair)
+        label_for_plots = [legending(mp), legending(mp_w)]
+        angle_dev = [angle_dev_mp, angle_dev_mp_w]
+        temp_pair = pair.replace("_1", "")
+        fig, ax = plt.subplots()
+        plt.title("Absolute angle deviations in: " + temp_pair + " for: " + parts)
+        green_triangle = mlines.Line2D([], [], color='green', marker='^', linestyle='None',
+                            markersize=10, label='Average')
+        orange_line = mlines.Line2D([], [], color='orange',
+                            label='Median')
+        plt.legend(handles=[green_triangle, orange_line])
+        bp_adatok = ax.boxplot(angle_dev, labels=label_for_plots, notch=True, showmeans=True)
+        plt.ylabel("Angle deviations compared to OT [°]")
+        plt.xlabel("Dataset")
+        f = "C:/dev/thesis/data/plots/BoxPlotd/angles/" + temp_pair + "_" + parts + ".svg"
+        plt.savefig(f, format='svg')
+        plt.clf()
+
+        uniMes.functions.bp_data(bp_adatok, temp_pair)
 
 # xn = angles[pair][ot]
 

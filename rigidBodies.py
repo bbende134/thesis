@@ -19,12 +19,17 @@ rigid_bodies = {"left forearm":[15,13, "Bende:l_wrist","Bende:l_elbow"],
 
 
 statistic_data = {}
-# for name in rigid_bodies:
-#     lengths = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies[name], False, uniMes.time_resampled)
-    
-#     statistic_data[name] = uniMes.functions.box_plotting_for_pair(lengths, name)
-
 for name in rigid_bodies:
     lengths = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies[name], False, uniMes.time_resampled)
     
-    statistic_data[name] = uniMes.functions.box_plotting_for_all(lengths, name)
+    statistic_data[name] = uniMes.functions.box_plotting_for_pair_2(lengths, name)
+
+# for name in rigid_bodies:
+#     lengths = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies[name], True, uniMes.time_resampled)
+    
+#     statistic_data[name] = uniMes.functions.box_plotting_for_all(lengths, name)
+
+# for name in rigid_bodies:
+#     lengths = uniMes.functions.distance_plotting_pair(uniMes.data_points_resampled, rigid_bodies[name], True, uniMes.time_resampled)
+    
+#     statistic_data[name] = uniMes.functions.box_plotting_for_all(lengths, name)
